@@ -16,13 +16,15 @@ int main(void)
     SetTargetFPS(60);               // Set our game to run at 60 frames-per-second
 
     InitialisePlayer();
+    InitialiseTools();
     // Main game loop
 
     while (!WindowShouldClose()) 
     {
         // Update
         UpdatePlayer();
-        
+        UpdateShovel();
+        UpdateWateringCan();
 
         // Draw
        
@@ -34,6 +36,7 @@ int main(void)
         Timer();
 
         DrawPlayer();
+        DrawTools();
 
         EndDrawing();
 
