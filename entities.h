@@ -35,13 +35,24 @@ class Chicken : Entity
 
 class Shovel : Entity
 {
+public:
+    Vector2 size = { 10, 20 };
+    Vector2 position;
+    Color color = YELLOW;
     bool is_in_player_inventory = false;
+    int interact_radius = 8;
 };
 
 class WateringCan : Entity
 {
+public:
+
+    Vector2 size = { 40, 25 };
+    Vector2 position;
+    Color color = DARKBLUE;
     bool is_in_player_inventory = false;
     int water_level = 0;
+    int interact_radius = 8;
 };
 
 class CornCrop : Entity
@@ -76,3 +87,8 @@ class WheatCrop : Entity
 void InitialisePlayer();
 void UpdatePlayer();
 void DrawPlayer();
+void DrawTools();
+void InitialiseTools();
+void UpdateShovel();
+void ToolsGUI();
+void UpdateWateringCan();
