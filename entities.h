@@ -1,6 +1,7 @@
 #pragma once
 #include "raylib.h"
 
+
 class Entity
 {
 public:
@@ -15,7 +16,6 @@ public:
     Vector2 size = {};
     Vector2 position = {};
     Color color = WHITE;
-
 };
 
 class Cow : Entity

@@ -1,13 +1,13 @@
 #include "entities.h"
 #include "raylib.h"
 #include <iostream>
+#include <string>
 
 constexpr int PLAYER_SPEED = 5;
 
 Player player = {};
 Shovel shovel = {};
 WateringCan watering_can = {};
-
 
 void InitialisePlayer()
 {
@@ -73,40 +73,22 @@ void DrawTools()
     }
 }
 
-void ToolsGUI(bool shovel)
-{
-
-    enum TOOL_STATE
-    {
-        NO_ITEMS,
-        SHOVEL,
-        WATERING_CAN,
-        SHOVEL_AND_WATERING_CAN,
-    };
+void ToolsGUI() {
 
     DrawText("Tools:", 0, 5, 20, GOLD);
 
-   /* switch (TOOL_STATE)
-    {
+    if (shovel.is_in_player_inventory) {
 
-    case TOOL_STATE::NO_ITEMS:
-        break;
-
-    case TOOL_STATE::SHOVEL:
-        DrawText("Shovel", 2, 30, 15, RAYWHITE);
-        break;
-
-    case TOOL_STATE::WATERING_CAN:
-        DrawText("Watering Can", 2, 50, 15, RAYWHITE);
-        break;
-
-    case TOOL_STATE::SHOVEL_AND_WATERING_CAN:
-        DrawText("Shovel", 2, 30, 15, RAYWHITE);
-        DrawText("Watering Can", 2, 50, 15, RAYWHITE);
-        break;
+        DrawText("Shovel", 0, 25, 10, WHITE);
     }
-    */
+
+    if (watering_can.is_in_player_inventory) {
+
+        DrawText("Watering Can", 0, 35, 10, WHITE);
+    }    
+    
 }
+
 void UpdateShovel()
 {
     int range = shovel.interact_radius;
@@ -116,9 +98,6 @@ void UpdateShovel()
         shovel.is_in_player_inventory = true;
     }
     bool draw_shovel = shovel.is_in_player_inventory;
-    ToolsGUI(draw_shovel);
-
-    // THIS CODE WON'T WORK RIGHT NOW, TRANSITIONING TO ENUM FIX
 }
 
 void UpdateWateringCan()
@@ -131,7 +110,4 @@ void UpdateWateringCan()
         std::cout << "Watering Can Collected" << std::endl;
     }
     bool draw_watering_can = watering_can.is_in_player_inventory;
-    ToolsGUI(draw_watering_can);
-
-    // THIS CODE WON'T WORK RIGHT NOW, TRANSITIONING TO ENUM FIX
 }
