@@ -30,14 +30,7 @@ struct Tree
     }
 };
 
-
-
-
 std::vector<Tree> tree{};
-
-
-
-
 
 void RenderTrees()
 {
@@ -133,12 +126,9 @@ void RenderLevel() {
     DrawCircleSector(center, outerRadius, startAngle, endAngle, 0, Fade(BLUE, 0.3f));                       // Pond
     DrawCircleSectorLines(center, outerRadius, startAngle, endAngle, 0, BLACK);                             // Pond Outline
 
-    DrawRectangleGradientH(0, screenHeight - 150, 170, 150, DARKBROWN, BROWN);                              // Shop
+                                  // Shop
     DrawText("S H O P !", 15, screenHeight - 140, 30, GOLD);                                                // Shop Text
 
     DrawRectangleGradientH(screenWidth * 0.75f, screenHeight * 0.05f, 240, 400, ORANGE, BEIGE);             // Farmland
-
-    DrawRectangle(screenWidth * 0.5, screenHeight * 0.15, 140, 170, BEIGE);                                 //
-    DrawRectangle(screenWidth * 0.6, screenHeight * 0.55, 150, 150, BEIGE);                                 // Places for animals
-   DrawRectangle(screenWidth * 0.2, screenHeight * 0.4, 160, 170, BEIGE);                                   // 
 }
+
