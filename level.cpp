@@ -3,6 +3,12 @@
 #include <iostream>
 #include <string>
 
+//int timer = 0;
+int milisec = 0;
+int sec = 0;
+int min = 0;
+
+
 struct Tree
 {
     int xposition;        //            (1)  (2)  (3)  (4)
@@ -24,19 +30,14 @@ struct Tree
     }
 };
 
-struct Apple
-{
-    int stage = 0;
-    int tree_nr = 0;
 
-    Apple(int tree_number)
-    {
-        tree_nr = tree_number;
-    }
-};
 
-std::vector<Apple> apple{};
+
 std::vector<Tree> tree{};
+
+
+
+
 
 void RenderTrees()
 {
@@ -76,21 +77,21 @@ void Counters()
 {
     std::string tree_counter = "Tree count: ";
     std::string apple_counter = "Apple count: ";
+    //std::string apple_count = std::to_string(apple.size());
     std::string count = std::to_string(tree.size());
 
     DrawText(tree_counter.c_str(), 190, 200, 20, LIGHTGRAY);
     DrawText(count.c_str(), 320, 200, 20, ORANGE);
 
+    DrawText(apple_counter.c_str(), 190, 230, 20, LIGHTGRAY);
+    //DrawText(apple_count.c_str(), 320, 230, 20, ORANGE);
+
 }
 
 
-int milisec = 0;
-int sec = 0;
-int min = 0;
-
 void Timer() {
 
-
+    //timer++;
     milisec++;
     if (milisec == 60)
     {
@@ -115,7 +116,7 @@ void Timer() {
 }
 
 
-void RenderLevel() {                                                                                        
+void RenderLevel() {
 
     const int screenWidth = 1280;
     const int screenHeight = 720;
@@ -136,4 +137,8 @@ void RenderLevel() {
     DrawText("S H O P !", 15, screenHeight - 140, 30, GOLD);                                                // Shop Text
 
     DrawRectangleGradientH(screenWidth * 0.75f, screenHeight * 0.05f, 240, 400, ORANGE, BEIGE);             // Farmland
+
+    DrawRectangle(screenWidth * 0.5, screenHeight * 0.15, 140, 170, BEIGE);                                 //
+    DrawRectangle(screenWidth * 0.6, screenHeight * 0.55, 150, 150, BEIGE);                                 // Places for animals
+   DrawRectangle(screenWidth * 0.2, screenHeight * 0.4, 160, 170, BEIGE);                                   // 
 }

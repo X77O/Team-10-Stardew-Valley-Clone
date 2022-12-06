@@ -2,7 +2,7 @@
 #include <iostream>
 #include <stack>
 #include "raylib.h"
-#include "level.h"
+#include "../level.h"
 #include "../entities.h"
 
 void RenderLevel();
@@ -17,26 +17,43 @@ int main(void)
 
     InitialisePlayer();
     InitialiseTools();
+    InitFarming();
+    InitAnimals();
+    
     // Main game loop
 
     while (!WindowShouldClose()) 
     {
         // Update
         UpdatePlayer();
-        UpdateShovel();
-        UpdateWateringCan();
+        HarvestApples();
+        UpdateAnimals();
 
         // Draw
        
         BeginDrawing();
 
+        
+
+        ToolsGUI();
+        UpdateShovel();
+        UpdateWateringCan();
+
+        Notificationwindow();
+
         RenderLevel();
         RenderTrees();
+
+        DrawTools();
+        
+        RenderAnimals();
+
+        Farmtilerender();
+
         Counters();
         Timer();
-
+        Applegrowth();
         DrawPlayer();
-        DrawTools();
 
         EndDrawing();
 
