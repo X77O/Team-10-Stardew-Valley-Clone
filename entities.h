@@ -19,6 +19,7 @@ public:
     int collected_apple_count = 0;
     int collected_crops = 90;
     int collected_wheat = 90;
+    int collected_milk = 0;
 };
 
 class Shovel : Entity
@@ -109,6 +110,7 @@ public:
     std::string name;
     Vector2 position;
     int activity;
+    int activity_1;
     bool walking;
     bool ready = false;
     int x_speed = 0;
@@ -123,11 +125,13 @@ public:
     Animal(std::string type)
     {
         activity = GetRandomValue(100, 300);
+        activity_1 = GetRandomValue(400, 800);
         name = type;
         if (type == "sheep")
         {
             position.x = GetRandomValue(GetScreenWidth() * 0.5 + 10, GetScreenWidth() * 0.5 + 130);
             position.y = GetRandomValue(GetScreenHeight() * 0.15 + 10, GetScreenHeight() * 0.15 + 160);
+
             int x_left_border = GetScreenWidth() * 0.5;
             int y_top_border = GetScreenHeight() * 0.15;
             int x_right_border = GetScreenWidth() * 0.5 + 140;
@@ -137,6 +141,7 @@ public:
         {
             position.x = GetRandomValue(GetScreenWidth() * 0.6 + 10, GetScreenWidth() * 0.6 + 140);
             position.y = GetRandomValue(GetScreenHeight() * 0.55 + 10, GetScreenHeight() * 0.55 + 140);
+            
             int x_left_border = GetScreenWidth() * 0.6;
             int y_top_border = GetScreenHeight() * 0.55;
             int x_right_border = GetScreenWidth() * 0.6 + 150;
@@ -146,6 +151,7 @@ public:
         {
             position.x = GetRandomValue(GetScreenWidth() * 0.2 + 10, GetScreenWidth() * 0.2 + 150);
             position.y = GetRandomValue(GetScreenHeight() * 0.4 + 10, GetScreenHeight() * 0.4 + 160);
+            
             int x_left_border = GetScreenWidth() * 0.2;
             int y_top_border = GetScreenHeight() * 0.4;
             int x_right_border = GetScreenWidth() * 0.2 + 160;
@@ -174,3 +180,4 @@ void Notificationwindow();
 void InitAnimals();
 void RenderAnimals();
 void UpdateAnimals();
+void Applegrowth();

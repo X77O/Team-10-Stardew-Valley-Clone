@@ -608,10 +608,36 @@ void UpdateAnimals()
 
     for (Animal& animal : animals)
     {
+        /*if (timer % (animal.activity * 2) && animal.name == "cow")    //timer % animal.activity_1 == 0
+        {
+            animal.ready == true;
+            animal.walking == false;
+        }*/
+        if (animal.ready && animal.name == "cow")
+        {
+            DrawRectangle(animal.position.x + 6, animal.position.y - 10, 4, 9, GREEN);
+            if (IsKeyPressed(KEY_SPACE) && player.position.x >= animal.position.x - 10 && player.position.x <= animal.position.x + 10 &&
+                player.position.y >= animal.position.y - 10 && player.position.y <= animal.position.y + 10)
+            {
+                animal.ready = false;
+                player.collected_milk++;
+            }
+        }
+        else if (animal.walking)
+        {
+            animal.position.x = animal.position.x + animal.x_speed * 0.003 * animal.x_direction;
+            animal.position.y = animal.position.y + animal.y_speed * 0.003 * animal.y_direction;
+        }
+
         if (timer % animal.activity == 0 && animal.ready == false)
         {
-            animal.walking = (animal.walking == true) ? false : true;
-            if (animal.walking)
+            int chance_to_be_ready = GetRandomValue(0, 10);
+            animal.walking = (animal.walking == true || chance_to_be_ready == 0) ? false : true;
+            if (chance_to_be_ready == 0)
+            {
+                animal.ready = true;
+            }
+            else if (animal.walking)
             {
                 do
                 {
@@ -624,17 +650,19 @@ void UpdateAnimals()
                 if (animal.y_direction == 0) animal.y_direction = -1;
             }
         }
-        if (animal.walking)
-        {
-            animal.position.x = animal.position.x + animal.x_speed * 0.003 * animal.x_direction;
-            animal.position.y = animal.position.y + animal.y_speed * 0.003 * animal.y_direction;
+        
+        
+        
+        //if (animal.position.x <= animal.x_left_border || animal.position.x >= animal.x_right_border) animal.x_direction *= -1;
+        //if (animal.position.y <= animal.y_top_border || animal.position.y >= animal.y_bottom_border) animal.y_direction *= -1;
 
-            if (animal.position.x == animal.x_left_border || animal.position.x == animal.x_right_border) animal.x_direction * -1;
-            if (animal.position.y == animal.y_top_border || animal.position.y == animal.y_bottom_border) animal.y_direction * -1;
-
-        }
+        //if (animal.position.x <= animal.x_left_border || animal.position.x >= animal.x_right_border) animal.walking = false;
+        //if (animal.position.y <= animal.y_top_border || animal.position.y >= animal.y_bottom_border) animal.walking = false;
         
     }
+    std::string milk_count = std::to_string(player.collected_milk);
+    DrawText(milk_count.c_str(), 600, 110, 20, YELLOW);
+    DrawText("Collected milk: ", 450, 110, 20, BLACK);
 }
 
 void RenderAnimals()
