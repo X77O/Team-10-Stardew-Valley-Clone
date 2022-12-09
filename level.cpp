@@ -3,26 +3,51 @@
 #include <iostream>
 #include <string>
 
-//int timer = 0;
+
+//*************TIMER***********
+// 
+//timer values
 int milisec = 0;
 int sec = 0;
 int min = 0;
 
-
-struct Tree
+void Timer()                                                  //Timer
 {
-    int xposition;        //            (1)  (2)  (3)  (4)
-    int tree_number;  // ----->      (5)  (6)  (7)  (8)
+    milisec++;
+    if (milisec == 60)
+    {
+        sec++;
+        milisec = 0;
+    }
+    if (sec == 60)
+    {
+        min++;
+        sec = 0;
+    }
+
+    std::string seconds = std::to_string(sec);
+    std::string mili_seconds = std::to_string(milisec);
+    std::string minutes = std::to_string(min);
+
+
+    DrawText(seconds.c_str(), 125, 700, 20, WHITE);
+    DrawText(minutes.c_str(), 75, 700, 20, WHITE);
+    DrawText("Time:     m     s", 10, 700, 20, YELLOW);
+
+}
+
+//*******TREES********
+
+struct Tree                                                   //Appletrees in the orchard
+{
+    int xposition;                                            // tree numbers  (1)  (2)  (3)  (4)
+    int tree_number;                                          //   ----->      (5)  (6)  (7)  (8)
     int yposition;
     Color colorOfLeaves;
 
 
     Tree(int xpos, int ypos, int tree_nr, Color clrOfLeaves)
     {
-
-        //DrawRectangle(xpos - 7, ypos - 30, 15, 30, BROWN);
-        //DrawCircle(xpos, ypos - 50, 35, colorOfLeaves);
-
         colorOfLeaves = clrOfLeaves;
         tree_number = tree_nr;
         xposition = xpos;
@@ -30,14 +55,7 @@ struct Tree
     }
 };
 
-
-
-
 std::vector<Tree> tree{};
-
-
-
-
 
 void RenderTrees()
 {
@@ -73,48 +91,7 @@ void RenderTrees()
 
 }
 
-void Counters()
-{
-    std::string tree_counter = "Tree count: ";
-    std::string apple_counter = "Apple count: ";
-    //std::string apple_count = std::to_string(apple.size());
-    std::string count = std::to_string(tree.size());
-
-    DrawText(tree_counter.c_str(), 190, 200, 20, LIGHTGRAY);
-    DrawText(count.c_str(), 320, 200, 20, ORANGE);
-
-    DrawText(apple_counter.c_str(), 190, 230, 20, LIGHTGRAY);
-    //DrawText(apple_count.c_str(), 320, 230, 20, ORANGE);
-
-}
-
-
-void Timer() {
-
-    //timer++;
-    milisec++;
-    if (milisec == 60)
-    {
-        sec++;
-        milisec = 0;
-    }
-    if (sec == 60)
-    {
-        min++;
-        sec = 0;
-    }
-
-    std::string sekonds = std::to_string(sec);
-    std::string mili_sekonds = std::to_string(milisec);
-    std::string minutes = std::to_string(min);
-
-
-    DrawText(sekonds.c_str(), 125, 700, 20, WHITE);
-    DrawText(minutes.c_str(), 75, 700, 20, WHITE);
-    DrawText("Time:     m     s", 10, 700, 20, YELLOW);
-
-}
-
+//********LEVEL*************
 
 void RenderLevel() {
 
@@ -138,7 +115,4 @@ void RenderLevel() {
 
     DrawRectangleGradientH(screenWidth * 0.75f, screenHeight * 0.05f, 240, 400, ORANGE, BEIGE);             // Farmland
 
-    DrawRectangle(screenWidth * 0.5, screenHeight * 0.15, 140, 170, BEIGE);                                 //
-    DrawRectangle(screenWidth * 0.6, screenHeight * 0.55, 150, 150, BEIGE);                                 // Places for animals
-   DrawRectangle(screenWidth * 0.2, screenHeight * 0.4, 160, 170, BEIGE);                                   // 
 }
