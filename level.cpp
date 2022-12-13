@@ -115,9 +115,4 @@ void RenderLevel() {
 
     DrawRectangleGradientH(screenWidth * 0.75f, screenHeight * 0.05f, 240, 400, ORANGE, BEIGE);             // Farmland
 
-    DrawRectangle(screenWidth * 0.5, screenHeight * 0.15, 200, 230, BEIGE);
-    DrawRectangle(screenWidth * 0.48, screenHeight * 0.55, 330, 180, BEIGE);
-    DrawRectangle(screenWidth * 0.2, screenHeight * 0.4, 180, 195, BEIGE);
-
-    DrawRectangle(450, 400, 120, 120, RAYWHITE);
 }

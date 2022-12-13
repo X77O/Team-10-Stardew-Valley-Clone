@@ -27,6 +27,10 @@ public:
     Sound walking_sound;
     Texture2D current_house;
     bool shopping = false;
+    bool buying = false;
+    bool selling = false;
+    bool upgrading = false;
+    int money = 2000;
 
     //inventory
     int apples = 0;
@@ -53,6 +57,10 @@ public:
     int y_speed = 0;
     int x_direction = 0;
     int y_direction = 0;
+    int x_left_border;
+    int y_top_border;
+    int x_right_border;
+    int y_bottom_border;
 
     Animal(std::string type)
     {
@@ -60,18 +68,30 @@ public:
         name = type;
         if (type == "sheep")
         {
-            position.x = GetRandomValue(GetScreenWidth() * 0.5 + 10, GetScreenWidth() * 0.5 + 150);
-            position.y = GetRandomValue(GetScreenHeight() * 0.15 + 10, GetScreenHeight() * 0.15 + 200);
+            position.x = GetRandomValue(GetScreenWidth() * 0.5 + 10, GetScreenWidth() * 0.5 + 130);
+            position.y = GetRandomValue(GetScreenHeight() * 0.15 + 10, GetScreenHeight() * 0.15 + 160);
+            int x_left_border = GetScreenWidth() * 0.5;
+            int y_top_border = GetScreenHeight() * 0.15;
+            int x_right_border = GetScreenWidth() * 0.5 + 140;
+            int y_bottom_border = GetScreenHeight() * 0.15 + 170;
         }
         if (type == "cow")
         {
-            position.x = GetRandomValue(GetScreenWidth() * 0.48 + 10, GetScreenWidth() * 0.48 + 240);
-            position.y = GetRandomValue(GetScreenHeight() * 0.55 + 10, GetScreenHeight() * 0.55 + 100);
+            position.x = GetRandomValue(GetScreenWidth() * 0.6 + 10, GetScreenWidth() * 0.6 + 140);
+            position.y = GetRandomValue(GetScreenHeight() * 0.55 + 10, GetScreenHeight() * 0.55 + 140);
+            int x_left_border = GetScreenWidth() * 0.6;
+            int y_top_border = GetScreenHeight() * 0.55;
+            int x_right_border = GetScreenWidth() * 0.6 + 150;
+            int y_bottom_border = GetScreenHeight() * 0.55 + 150;
         }
         if (type == "chicken")
         {
-            position.x = GetRandomValue(GetScreenWidth() * 0.2 + 10, GetScreenWidth() * 0.2 + 130);
-            position.y = GetRandomValue(GetScreenHeight() * 0.4 + 10, GetScreenHeight() * 0.4 + 130);
+            position.x = GetRandomValue(GetScreenWidth() * 0.2 + 10, GetScreenWidth() * 0.2 + 150);
+            position.y = GetRandomValue(GetScreenHeight() * 0.4 + 10, GetScreenHeight() * 0.4 + 160);
+            int x_left_border = GetScreenWidth() * 0.2;
+            int y_top_border = GetScreenHeight() * 0.4;
+            int x_right_border = GetScreenWidth() * 0.2 + 160;
+            int y_bottom_border = GetScreenHeight() * 0.4 + 170;
         }
 
     }
@@ -229,3 +249,10 @@ void Applegrowth();
 void HarvestApples();
 void InitialiseFarming();
 void RenderFarmTiles();
+
+void InShop();
+void BuyingMenu();
+void ShopUserInput();
+int AskForUserInput();
+void InitialisePrices();
+

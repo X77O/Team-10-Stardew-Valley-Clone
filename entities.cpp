@@ -1,10 +1,12 @@
-#include "Headers/entities.h"
+#include "../Headers/entities.h"
 #include "raylib.h"
 #include "raymath.h"
 #include <string>
 #include <iostream>
 #include <vector>
-#include "Headers/shop.h"
+#include "../Headers/shop.h"
+#include <map>
+
 
 constexpr int PLAYER_SPEED = 5;
 
@@ -13,6 +15,11 @@ int y_select = 70;  //coordinates of the selection rectangle
 Player player = {};
 Shovel shovel = {};
 WateringCan watering_can = {};
+std::map <std::string, int> buy_pricelist;
+std::map <std::string, int> sell_pricelist;
+std::map <std::string, int> upgrade_pricelist;
+bool upgraded_watercan = false;
+int house_tier = 1;
 
 
 //***************NOTIFICATIONS****************
@@ -227,9 +234,14 @@ void UpdateWateringCan()
 
     if (IsKeyDown(KEY_E) && watering_can.is_in_player_inventory) {
 
-        if (player.position.x > GetScreenWidth() - 180 && player.position.y > GetScreenHeight() - 180) {
+        if (player.position.x > GetScreenWidth() - 180 && player.position.y > GetScreenHeight() - 180 && !upgraded_watercan) {
 
             watering_can.water_level = 50;
+        }
+
+        else if (player.position.x > GetScreenWidth() - 180 && player.position.y > GetScreenHeight() - 180 && upgraded_watercan) {
+
+            watering_can.water_level = 100;
         }
 
     }
@@ -317,71 +329,6 @@ void InitialiseLevel()
     Texture2D current_house = house_1;
 };
 
-//*************SHOP**************
-
-int AskForUserInput() {
-
-    bool input = false;
-    if (IsKeyPressed(KEY_ONE)) {
-        return 1;
-    }
-
-    if (IsKeyPressed(KEY_FOUR)) {
-        return 4;
-    }
-    else {
-        return 0;
-    }
-
-}
-
-void ShopUserInput() {
-
-    bool shop_open = true;
-
-    while (shop_open) {
-
-        int user_input = AskForUserInput();
-
-        switch (user_input)
-        {
-
-        case 1:
-            DrawBuyMenu();
-        case 4:
-            shop_open = false;
-        default:
-            shop_open = false;
-            break;
-        }
-    }
-}
-
-void InShop()
-{
-
-    bool inside_shop = (player.position.x > 0 && player.position.x < 170 && player.position.y > GetScreenHeight() - 150 && player.position.y < GetScreenHeight());
-
-    if (IsKeyPressed(KEY_SPACE) && inside_shop) {
-        player.shopping = !player.shopping;
-
-        DrawShopMenu();
-        ShopUserInput();
-    }
-
-    else if (player.shopping && inside_shop) {
-        DrawShopMenu();
-        ShopUserInput();
-    }
-
-    else if (!inside_shop) {
-        player.shopping = false;
-    }
-
-    else {
-        return;
-    }
-}
 
 //**********APPLES**********
 
@@ -759,6 +706,7 @@ void RenderFarmTiles()
     }
 }
 
+
 //***********ANIMALS**************
 
 std::vector<Animal> animals{};
@@ -766,111 +714,60 @@ std::vector<Animal> animals{};
 
 void InitialiseAnimals()
 {
+    Texture2D Cow_t = LoadTexture("");
+    Texture2D Sheep_t = LoadTexture("");
+    Texture2D Chicken_t = LoadTexture("");
 
     for (int c = 1; c < 3; c++)
     {
         Animal sheep("sheep");
-        sheep.texture = LoadTexture("./Assets/animals.png");
+        sheep.texture = Sheep_t;
         animals.push_back(sheep);
     }
     for (int c = 1; c < 3; c++)
     {
         Animal chicken("chicken");
-        chicken.texture = LoadTexture("./Assets/chicken.png");
+        chicken.texture = Chicken_t;
         animals.push_back(chicken);
     }
     for (int c = 1; c < 4; c++)
     {
         Animal cow("cow");
-        cow.texture = LoadTexture("./Assets/animals.png");
+        cow.texture = Cow_t;
         animals.push_back(cow);
     }
 }
+
 
 void UpdateAnimals()
 {
     if (IsKeyPressed(KEY_ONE))
     {
         Animal sheep("sheep");
-        sheep.texture = LoadTexture("./Assets/animals.png");
+
         animals.push_back(sheep);
 
     }
     if (IsKeyPressed(KEY_TWO))
     {
         Animal chicken("chicken");
-        chicken.texture = LoadTexture("./Assets/chicken.png");
+
         animals.push_back(chicken);
     }
     if (IsKeyPressed(KEY_THREE))
     {
         Animal cow("cow");
-        cow.texture = LoadTexture("./Assets/animals.png");
 
         animals.push_back(cow);
     }
 
     for (Animal& animal : animals)
     {
-        // MILKING COWS
-
-        if (animal.ready && animal.name == "cow")
-        {
-            
-            if (IsKeyPressed(KEY_SPACE) && player.position.x >= animal.position.x - 30 && player.position.x <= animal.position.x + 30 &&
-                player.position.y >= animal.position.y - 30 && player.position.y <= animal.position.y + 30)
-            {
-                animal.ready = false;
-                player.milk++;
-            }
-        }
-
-        //COLLECT CHICKEN EGGS
-
-        if (animal.ready && animal.name == "chicken")
-        {
-
-            if (IsKeyPressed(KEY_SPACE) && player.position.x >= animal.position.x - 30 && player.position.x <= animal.position.x + 30 &&
-                player.position.y >= animal.position.y - 30 && player.position.y <= animal.position.y + 30)
-            {
-                animal.ready = false;
-                player.eggs++;
-            }
-        }
-
-        //GET WOOL FROM SHEEP
-
-        if (animal.ready && animal.name == "sheep")
-        {
-
-            if (IsKeyPressed(KEY_SPACE) && player.position.x >= animal.position.x - 30 && player.position.x <= animal.position.x + 30 &&
-                player.position.y >= animal.position.y - 30 && player.position.y <= animal.position.y + 30)
-            {
-                animal.ready = false;
-                player.wool++;
-            }
-        }
-
-        // ANIMALS WALKING
-
-        else if (animal.walking)
-        {
-            animal.position.x = animal.position.x + animal.x_speed * 0.003 * animal.x_direction;
-            animal.position.y = animal.position.y + animal.y_speed * 0.003 * animal.y_direction;
-
-        }
-
         if (timer % animal.activity == 0 && animal.ready == false)
         {
-            int chance_to_be_ready = GetRandomValue(0, 20);
-            animal.walking = (animal.walking == true || chance_to_be_ready == 0) ? false : true;
-            if (chance_to_be_ready == 0)
+            animal.walking = (animal.walking == true) ? false : true;
+            if (animal.walking)
             {
-                animal.ready = true;
-            }
-            else if (animal.walking)
-            {
-                
                 do
                 {
                     animal.x_speed = GetRandomValue(0, 100);
@@ -880,37 +777,20 @@ void UpdateAnimals()
                 if (animal.x_direction == 0) animal.x_direction = -1;
                 animal.y_direction = GetRandomValue(0, 1);
                 if (animal.y_direction == 0) animal.y_direction = -1;
-             
             }
         }
-
-        
-        if (animal.name == "sheep")
+        if (animal.walking)
         {
-            if (animal.position.x <= GetScreenWidth() * 0.5 || animal.position.x >= GetScreenWidth() * 0.5 + 150) animal.x_direction *= -1;
-            if (animal.position.y <= GetScreenHeight() * 0.15 || animal.position.y >= GetScreenHeight() * 0.15 + 190) animal.y_direction *= -1;
-        }
+            animal.position.x = animal.position.x + animal.x_speed * 0.003 * animal.x_direction;
+            animal.position.y = animal.position.y + animal.y_speed * 0.003 * animal.y_direction;
 
-        if (animal.name == "cow")
-        {
-            if (animal.position.x <= GetScreenWidth() * 0.46 || animal.position.x >= GetScreenWidth() * 0.48 + 280) animal.x_direction *= -1;
-            if (animal.position.y <= GetScreenHeight() * 0.55 || animal.position.y >= GetScreenHeight() * 0.55 + 130) animal.y_direction *= -1;
-        }
+            if (animal.position.x == animal.x_left_border || animal.position.x == animal.x_right_border) animal.x_direction * -1;
+            if (animal.position.y == animal.y_top_border || animal.position.y == animal.y_bottom_border) animal.y_direction * -1;
 
-        if (animal.name == "chicken")
-        {
-            if (animal.position.x <= GetScreenWidth() * 0.2 || animal.position.x >= GetScreenWidth() * 0.2 + 160) animal.x_direction *= -1;
-            if (animal.position.y <= GetScreenHeight() * 0.4 || animal.position.y >= GetScreenHeight() * 0.4 + 160) animal.y_direction *= -1;
         }
-        
 
     }
-    std::string milk_count = std::to_string(player.milk);
-    DrawText(milk_count.c_str(), 600, 110, 20, YELLOW);
-    DrawText("Collected milk: ", 450, 110, 20, BLACK);
 }
-
-
 
 void RenderAnimals()
 {
@@ -918,25 +798,275 @@ void RenderAnimals()
     {
         if (animal.name == "sheep")
         {
-            if (animal.x_direction == -1) DrawTextureRec(animal.texture, Rectangle{ 0, 0, 60, 30 }, Vector2{ animal.position.x, animal.position.y }, WHITE);
-            else DrawTextureRec(animal.texture, Rectangle{ 0, 30, 60, 30 }, Vector2{ animal.position.x, animal.position.y }, WHITE);
+            DrawRectangle(animal.position.x, animal.position.y, 13, 10, WHITE);
         }
         if (animal.name == "chicken")
         {
-            if (animal.x_direction == -1) DrawTextureRec(animal.texture, Rectangle{ 0, 30, 30, 30 }, Vector2{ animal.position.x, animal.position.y }, WHITE);
-            else DrawTextureRec(animal.texture, Rectangle{ 0, 0, 30, 30 }, Vector2{ animal.position.x, animal.position.y }, WHITE);
+            DrawRectangle(animal.position.x, animal.position.y, 9, 9, BROWN);
         }
         if (animal.name == "cow")
         {
-            if (animal.x_direction == -1) DrawTextureRec(animal.texture, Rectangle{ 0, 80, 60, 30 }, Vector2{ animal.position.x, animal.position.y }, WHITE);
-            else DrawTextureRec(animal.texture, Rectangle{ 0, 110, 60, 40 }, Vector2{ animal.position.x, animal.position.y }, WHITE);
+            DrawRectangle(animal.position.x, animal.position.y, 15, 12, BLACK);
         }
-
-        if (animal.ready)
-        {
-            DrawRectangle(animal.position.x + 6, animal.position.y - 10, 4, 9, GREEN);             // Rendering the green rectangle for signalizing that the animal is ready to be interacted with
-        }
-
-        
     }
 }
+
+//*************SHOP**************
+
+void InitialisePrices() {
+
+    buy_pricelist.insert({ "Corn", 50 });			// Buy menu prices
+    buy_pricelist.insert({ "Wheat", 20 });
+
+    sell_pricelist.insert({ "Corn", 5 });			// Sell menu prices
+    sell_pricelist.insert({ "Wheat", 2 });
+    sell_pricelist.insert({ "Apple", 30 });
+    sell_pricelist.insert({ "Wool", 25 });
+    sell_pricelist.insert({ "Milk", 15 });
+    sell_pricelist.insert({ "Egg", 10 });
+
+    upgrade_pricelist.insert({ "Upgraded Watering Can", 750 });
+    upgrade_pricelist.insert({ "Fertilizer for Apple Trees", 500 });
+    upgrade_pricelist.insert({ "Tier 1", 1000 });	// Upgrade menu prices
+    upgrade_pricelist.insert({ "Tier 2", 2000 });
+    upgrade_pricelist.insert({ "Tier 3", 3000 });
+}
+
+void BuyingMenu()
+{
+    if (IsKeyPressed(KEY_A)) {
+
+        if (player.money >= 50) {
+            player.money -= 50;
+            player.corn++;
+        }
+        else {
+            Notification("You do not have enough money!", 3);
+        }
+    }
+
+    if (IsKeyPressed(KEY_B)) {
+        if (player.money >= 20) {
+            player.money -= 20;
+            player.wheat++;
+        }
+        else {
+            Notification("You do not have enough money!", 3);
+        }
+    }
+}
+
+void SellingMenu()
+{
+    if (IsKeyPressed(KEY_A)) {
+
+        if (player.corn >= 1) {
+            player.money += 5;
+            player.corn--;
+            Notification("You sold an item!", 2);
+        }
+        else {
+            Notification("You do not have any corn to sell!", 3);
+        }
+    }
+
+    if (IsKeyPressed(KEY_B)) {
+
+        if (player.wheat >= 1) {
+            player.money += 2;
+            player.wheat--;
+            Notification("You sold an item!", 2);
+        }
+        else {
+            Notification("You do not have any wheat to sell!", 3);
+        }
+    }
+
+    if (IsKeyPressed(KEY_C)) {
+
+        if (player.apples >= 1) {
+            player.money += 30;
+            player.apples--;
+            Notification("You sold an item!", 2);
+        }
+        else {
+            Notification("You do not have any apples to sell!", 3);
+        }
+    }
+
+    if (IsKeyPressed(KEY_D)) {
+
+        if (player.wool >= 1) {
+            player.money += 25;
+            player.wool--;
+            Notification("You sold an item!", 2);
+        }
+        else {
+            Notification("You do not have any wool to sell!", 3);
+        }
+    }
+
+    if (IsKeyPressed(KEY_E)) {
+
+        if (player.milk >= 1) {
+            player.money += 15;
+            player.milk--;
+            Notification("You sold an item!", 2);
+        }
+        else {
+            Notification("You do not have any milk to sell!", 3);
+        }
+    }
+
+    if (IsKeyPressed(KEY_F)) {
+
+        if (player.eggs >= 1) {
+            player.money += 10;
+            player.eggs--;
+            Notification("You sold an item!", 2);
+        }
+        else {
+            Notification("You do not have any eggs to sell!", 3);
+        }
+    }
+}
+
+void UpgradeMenu()
+{
+    
+    if (IsKeyPressed(KEY_A)) {
+
+        if (player.money >= 150) {
+            player.money -= 150;
+            watering_can.water_level = 100;
+            upgraded_watercan = true;
+        }
+        else {
+            Notification("You do not have enough money!", 3);
+        }
+    }
+
+    if (IsKeyPressed(KEY_B)) {
+         
+        // CODE TO UPGRADE THE RATE FOR APPLES
+    }
+
+    if (IsKeyPressed(KEY_C)) {
+        if (player.money >= 300 && house_tier == 1) {
+            player.money -= 300;
+            house_tier = 2;
+            // CHANGE THE SPRITE OF THE HOUSE
+        }
+        else {
+            Notification("You do not have enough money or you already have a tier 2 house!", 3);
+        }
+    }
+
+    if (IsKeyPressed(KEY_D)) {
+        if (player.money >= 400 && house_tier == 2) {
+            player.money -= 400;
+            house_tier = 3;
+            // CHANGE THE SPRITE OF THE HOUSE
+        }
+        else {
+            Notification("You do not have enough money or you need to buy the 2nd tier first!", 3);
+        }
+    }
+}
+
+int AskForUserInput() {
+
+	bool input = false;
+	if (IsKeyPressed(KEY_ONE)) {
+		return 1;
+	}
+
+	if (IsKeyPressed(KEY_TWO)) {
+		return 2;
+	}
+	if (IsKeyPressed(KEY_THREE)) {
+		return 3;
+	}
+
+	if (IsKeyPressed(KEY_FOUR)) {
+		return 4;
+	}
+	else {
+		return 0;
+	}
+
+}
+
+void ShopUserInput() {
+
+	bool shop_open = true;
+
+	while (shop_open) {
+		
+	int user_input = AskForUserInput();
+
+		switch (user_input)
+		{
+		case 1:
+			player.buying = !player.buying;
+		case 2:
+			player.selling = !player.selling;
+		case 3:
+            player.upgrading = !player.upgrading;
+		case 4:
+			shop_open = false;
+		default:
+			shop_open = false;
+			break;
+		}
+	}
+}
+
+void InShop()
+{
+    bool inside_shop = (player.position.x > 0 && player.position.x < 170 && player.position.y > GetScreenHeight() - 150 && player.position.y < GetScreenHeight());
+
+    if (IsKeyPressed(KEY_SPACE) && inside_shop) {
+        player.shopping = !player.shopping;
+
+        DrawShopMenu();
+        ShopUserInput();
+    }
+
+    else if (player.shopping && inside_shop && !player.buying && !player.selling && !player.upgrading) {
+        DrawShopMenu();
+        ShopUserInput();
+    }
+
+    else if (player.buying && inside_shop) {
+        DrawBuyMenu();
+        ShopUserInput();
+        BuyingMenu();
+    }
+
+    else if (player.selling && inside_shop) {
+        DrawSellMenu();
+        ShopUserInput();
+        SellingMenu();
+    }
+
+    else if (player.upgrading && inside_shop) {
+        DrawUpgradeMenu();
+        ShopUserInput();
+        UpgradeMenu();
+    }
+
+    else if (!inside_shop) {
+        player.shopping = false;
+        player.selling = false;
+    }
+
+    else {
+        return;
+    }
+
+    std::cout << "MONEY:    " << player.money << std::endl;
+}
+
+
+
