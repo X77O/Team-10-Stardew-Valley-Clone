@@ -46,6 +46,7 @@ public:
     Texture texture;
     std::string name;
     Vector2 position;
+    Sound sound;
     int activity;
     bool walking;
     bool ready = false;
@@ -75,21 +76,6 @@ public:
         }
 
     }
-};
-
-class Cow : Entity
-{
-    bool milked = false;
-};
-
-class Sheep : Entity
-{
-    bool sheared = false;
-};
-
-class Chicken : Entity
-{
-    bool laid_egg = false;
 };
 
 //********CROPS***********

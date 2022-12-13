@@ -453,40 +453,40 @@ void Applegrowth()
 
 int TreeLocator()
 {
-    if (player.position.y < 170 && player.position.y > 90)
+    if (player.position.y < 120 && player.position.y > 40)
     {
-        if (player.position.x >= 145 && player.position.x < 175)
+        if (player.position.x >= 80 && player.position.x < 150)
         {
             return 1;
         }
-        if (player.position.x >= 175 && player.position.x < 205)
+        if (player.position.x >= 150 && player.position.x < 200)
         {
             return 2;
         }
-        if (player.position.x >= 205 && player.position.x < 235)
+        if (player.position.x >= 200 && player.position.x < 250)
         {
             return 3;
         }
-        if (player.position.x >= 235 && player.position.x < 265)
+        if (player.position.x >= 250 && player.position.x < 330)
         {
             return 4;
         }
     }
-    if (player.position.y < 250 && player.position.y >= 170)
+    if (player.position.y < 220 && player.position.y >= 120)
     {
-        if (player.position.x >= 145 && player.position.x < 175)
+        if (player.position.x >= 80 && player.position.x < 150)
         {
             return 5;
         }
-        if (player.position.x >= 175 && player.position.x < 205)
+        if (player.position.x >= 150 && player.position.x < 200)
         {
             return 6;
         }
-        if (player.position.x >= 205 && player.position.x < 235)
+        if (player.position.x >= 200 && player.position.x < 250)
         {
             return 7;
         }
-        if (player.position.x >= 235 && player.position.x < 265)
+        if (player.position.x >= 250 && player.position.x < 330)
         {
             return 8;
         }
@@ -510,8 +510,17 @@ void HarvestApples()
             }
         }
     }
+    DrawText("100", 100, 0, 15, BLACK);
+    DrawText("250", 250, 0, 15, BLACK);
+    DrawText("150", 150, 0, 15, BLACK);
+    DrawText("300", 300, 0, 15, BLACK);
+    DrawText("200", 200, 0, 15, BLACK);
 
-
+    DrawText("20", 0, 20, 15, BLACK);
+    DrawText("40", 0, 40, 15, BLACK);
+    DrawText("60", 0, 60, 15, BLACK);
+    DrawText("80", 0, 80, 15, BLACK);
+    DrawText("100", 0, 100, 15, BLACK);
 }
 
 //**********FARMING*******************
@@ -531,7 +540,6 @@ void InitialiseFarming()
             tile.push_back(farmtile);
         }
     }
-
 }
 
 
@@ -771,28 +779,35 @@ void InitialiseAnimals()
     {
         Animal sheep("sheep");
         sheep.texture = LoadTexture("./Assets/animals.png");
+        sheep.sound = LoadSound("./Assets/sheep_baa.wav");  //      <-------------  I UPLOAD THE SOUND HERE
         animals.push_back(sheep);
     }
     for (int c = 1; c < 3; c++)
     {
         Animal chicken("chicken");
         chicken.texture = LoadTexture("./Assets/chicken.png");
+        chicken.sound = LoadSound("./Assets/Chicken.wav"); //      <-------------  I UPLOAD THE SOUND HERE
         animals.push_back(chicken);
     }
     for (int c = 1; c < 4; c++)
     {
         Animal cow("cow");
         cow.texture = LoadTexture("./Assets/animals.png");
+        cow.sound = LoadSound("./Assets/cow_moo.wav"); //      <-------------  I UPLOAD THE SOUND HERE
         animals.push_back(cow);
     }
 }
 
 void UpdateAnimals()
 {
+
+    // SPAWNING ANIMALS------------------------------------
+
     if (IsKeyPressed(KEY_ONE))
     {
         Animal sheep("sheep");
         sheep.texture = LoadTexture("./Assets/animals.png");
+        sheep.sound = LoadSound("./Assets/sheep_baa.wav"); //      <-------------  I UPLOAD THE SOUND HERE
         animals.push_back(sheep);
 
     }
@@ -800,15 +815,18 @@ void UpdateAnimals()
     {
         Animal chicken("chicken");
         chicken.texture = LoadTexture("./Assets/chicken.png");
+        chicken.sound = LoadSound("./Assets/Chicken.wav"); //      <-------------  I UPLOAD THE SOUND HERE
         animals.push_back(chicken);
     }
     if (IsKeyPressed(KEY_THREE))
     {
         Animal cow("cow");
         cow.texture = LoadTexture("./Assets/animals.png");
-
+        cow.sound = LoadSound("./Assets/cow_moo.wav");//      <-------------  I UPLOAD THE SOUND HERE
         animals.push_back(cow);
     }
+
+    //-------------------------------------------------------
 
     for (Animal& animal : animals)
     {
@@ -867,6 +885,7 @@ void UpdateAnimals()
             if (chance_to_be_ready == 0)
             {
                 animal.ready = true;
+                PlaySound(animal.sound);          //      <-------------  AND I PLAY THE SOUND HERE
             }
             else if (animal.walking)
             {
@@ -885,6 +904,8 @@ void UpdateAnimals()
         }
 
         
+        //BORDERS-------------------------------
+
         if (animal.name == "sheep")
         {
             if (animal.position.x <= GetScreenWidth() * 0.5 || animal.position.x >= GetScreenWidth() * 0.5 + 150) animal.x_direction *= -1;
@@ -903,11 +924,10 @@ void UpdateAnimals()
             if (animal.position.y <= GetScreenHeight() * 0.4 || animal.position.y >= GetScreenHeight() * 0.4 + 160) animal.y_direction *= -1;
         }
         
+        //-----------------------------------------
 
     }
-    std::string milk_count = std::to_string(player.milk);
-    DrawText(milk_count.c_str(), 600, 110, 20, YELLOW);
-    DrawText("Collected milk: ", 450, 110, 20, BLACK);
+    
 }
 
 
@@ -934,7 +954,8 @@ void RenderAnimals()
 
         if (animal.ready)
         {
-            DrawRectangle(animal.position.x + 6, animal.position.y - 10, 4, 9, GREEN);             // Rendering the green rectangle for signalizing that the animal is ready to be interacted with
+            DrawRectangle(animal.position.x + 6, animal.position.y - 14, 4, 10, GREEN);             // Rendering the green rectangle for signalizing that the animal is ready to be interacted with
+            DrawRectangle(animal.position.x + 6, animal.position.y - 3, 4, 4, GREEN);
         }
 
         
