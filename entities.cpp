@@ -1,52 +1,21 @@
-#include "entities.h"
+#include "Headers/entities.h"
 #include "raylib.h"
-#include "string"
+#include "raymath.h"
+#include <string>
+#include <iostream>
 #include <vector>
-
-/*
-
-                *DON'T FORGET TO DOWNLOAD SPRITESHEET FOR CORN FROM GITHUB*
-
-
-PUT THIS CLASS BELOW INTO ENTITIES.H
-
------------------------------------------------------------
-
-class Farmtile : Entity
-{
-public:
-    Vector2 position = {};
-    Vector2 size = {76, 76};
-    Color tile_color = BROWN;
-    int stage = 0; // (0) not planted (1) planted (2) small (3) almost there (4) ready corn;
-    bool watered = false;
-    Texture2D texture;
-
-    Farmtile(int xpos, int ypos)
-    {
-        position.x = xpos;
-        position.y = ypos;
-    }
-
-};
-
-----------------------------------------------------------
-
-ADD FOLLOWING VARIABLES TO PLAYER CLASS:       int collected_apple_count = 0;       int collected_crops = 90;    (FRANEK HAD HIS OWN VARIABLES FOR THAT, BUT I'M TOO TIRED TO FIX THAT TODAY)
-    
-*/
+#include "Headers/shop.h"
 
 constexpr int PLAYER_SPEED = 5;
-int timer = 1;   
 
-int y_select = 70;
-// DELETE TIMER FROM LEVEL.CPP
+int y_select = 70;  //coordinates of the selection rectangle
 
 Player player = {};
-std::vector<Apple> apple{};
-
 Shovel shovel = {};
 WateringCan watering_can = {};
+
+
+//***************NOTIFICATIONS****************
 
 std::string notification_text = "Welcome to Farm it up!";
 int time_to_show = 360;
@@ -57,57 +26,374 @@ void Notification(std::string notification, int time_to_show_sec)
     notification_text = notification;
 }
 
-void Notificationwindow() {
+void OurNotificationWindow() {
     if (time_to_show > 0) DrawText(notification_text.c_str(), 350, 270, 15, WHITE);
     if (time_to_show > 0) time_to_show--;
 }
 
+//******PLAYER**********
 void InitialisePlayer()
 {
-    // TODO: Update your variables here
     player.position = { 0.5f * GetScreenWidth(), 0.5f * GetScreenHeight() };
-    player.size = { 0.03f * GetScreenWidth(), 0.05f * GetScreenHeight() };
+    player.size = { 0.03f * GetScreenWidth(), 0.055f * GetScreenHeight() };
 
+    Texture2D player_texture_idle = LoadTexture("./Assets/character_femaleAdventurer_idle.png");
+    Texture2D player_texture_walk_left = LoadTexture("./Assets/character_femaleAdventurer_walk0.png");
+    Texture2D player_texture_back = LoadTexture("./Assets/character_femaleAdventurer_back.png");
+    Texture2D player_texture_walk_right = LoadTexture("./Assets/character_femaleAdventurer_walk1.png");
 
-    //----------------------------------------------------------------------------------
+    player.idle_texture = player_texture_idle;
+    player.walk_left_texture = player_texture_walk_left;
+    player.walk_right_texture = player_texture_walk_right;
+    player.back_texture = player_texture_back;
+
+    player.current_texture = player.idle_texture;
+
+    Sound walking_sound = LoadSound("./Assets/walking.wav");
+    SetSoundVolume(walking_sound, 0.2f);
+    player.walking_sound = walking_sound;
+
 }
 
-void InitialiseTools()
+void UpdatePlayer() //TODO: MAKE IT NORMAL SPEED IN DIAGONALL
 {
-    shovel.position = { GetScreenWidth() * 0.6f, GetScreenHeight() * 0.85f };
-    watering_can.position = { GetScreenWidth() * 0.02f, GetScreenHeight() * 0.1f };
-}
 
-void UpdatePlayer()
-{
+    int width = GetScreenWidth();
+    int height = GetScreenHeight();
+
+    player.current_texture = player.idle_texture;
+
     Vector2 direction = { 0.f, 0.f };
 
     if (IsKeyDown(KEY_UP))
     {
+        player.current_texture = player.back_texture;
         direction.y -= 1;
+        //PlaySound(player.walking_sound);
     }
+
     if (IsKeyDown(KEY_DOWN))
     {
+        player.current_texture = player.idle_texture;
         direction.y += 1;
+
     }
+
     if (IsKeyDown(KEY_RIGHT))
     {
+        player.current_texture = player.walk_right_texture;
         direction.x += 1;
+
     }
+
     if (IsKeyDown(KEY_LEFT))
     {
+        player.current_texture = player.walk_left_texture;
         direction.x -= 1;
+
+    }
+
+    if (player.position.x <= 10)
+    {
+        if (IsKeyDown(KEY_LEFT))
+        {
+            player.current_texture = player.idle_texture;
+            direction.x = 0;
+        }
+    }
+    if (player.position.x >= width - 10)
+    {
+        if (IsKeyDown(KEY_RIGHT))
+        {
+            player.current_texture = player.idle_texture;
+            direction.x = 0;
+        }
+    }
+    if (player.position.y <= 20)
+    {
+        if (IsKeyDown(KEY_UP))
+        {
+            player.current_texture = player.idle_texture;
+            direction.y = 0;
+        }
+    }
+    if (player.position.y >= height - 20)
+    {
+        if (IsKeyDown(KEY_DOWN))
+        {
+            player.current_texture = player.idle_texture;
+            direction.y = 0;
+        }
     }
 
     player.position.x += direction.x * PLAYER_SPEED;
     player.position.y += direction.y * PLAYER_SPEED;
+
 }
+
+void DrawPlayer()
+{
+    int posX = player.position.x;
+    int posY = player.position.y;
+    int width = player.size.x;
+    int height = player.size.y;
+    Color color = player.color;
+    Texture2D current_texture = player.current_texture;
+    Rectangle playerRectangle = { 0,0, width, height };
+    Vector2 playerCenter = { width / 2, height / 2 };
+    Rectangle player = { posX, posY, width, height };
+
+    //DrawRectangle(posX, posY, width, height, color);
+    DrawTexturePro(current_texture, playerRectangle, player, playerCenter, 0, RAYWHITE);
+}
+
+void DrawTools()
+{
+    if (!shovel.is_in_player_inventory)
+    {
+        Texture2D texture = shovel.texture;
+        Rectangle shovelRectangle = { 0,0,shovel.size.x , shovel.size.y };
+        Vector2 shovel_center = { shovel.size.x, shovel.size.y };
+        Rectangle Shovel = { shovel.position.x, shovel.position.y, shovel.size.x * 4, shovel.position.y / 10 };
+
+        //DrawRectangleGradientV(shovel.position.x, shovel.position.y, shovel.size.x, shovel.size.y, YELLOW, BROWN);
+        DrawTexturePro(texture, shovelRectangle, Shovel, shovel_center, 0, RAYWHITE);
+    }
+    if (!watering_can.is_in_player_inventory)
+    {
+        Texture2D texture = watering_can.texture;
+        Rectangle watering_canRectangle = { 0,0,watering_can.size.x, watering_can.size.y };
+        Vector2 watering_can_center = { watering_can.size.x / 2, watering_can.size.y / 2 };
+        Rectangle water_can = { watering_can.position.x, watering_can.position.y, watering_can.size.x, watering_can.size.y };
+
+
+        //DrawRectangleGradientV(watering_can.position.x, watering_can.position.y, watering_can.size.x, watering_can.size.y, DARKBLUE, BLUE);
+        DrawTexturePro(texture, watering_canRectangle, water_can, watering_can_center, 0, RAYWHITE);
+    }
+}
+
+void DeinitialisePlayer()
+{
+    UnloadTexture(player.back_texture);
+    UnloadTexture(player.idle_texture);
+    UnloadTexture(player.walk_left_texture);
+    UnloadTexture(player.walk_right_texture);
+    UnloadSound(player.walking_sound);
+    UnloadTexture(shovel.texture);
+    UnloadTexture(watering_can.texture);
+    UnloadTexture(player.current_house);
+}
+
+
+//****************TOOLS*******************
+
+void InitialiseTools()
+{
+    Texture2D Shovel = LoadTexture("./Assets/tool_shovel.png");
+    Texture2D Watering_can = LoadTexture("./Assets/Watering_can.png");
+
+    shovel.texture = Shovel;
+    watering_can.texture = Watering_can;
+
+    shovel.position = { GetScreenWidth() * 0.6f, GetScreenHeight() * 0.85f };
+    watering_can.position = { GetScreenWidth() * 0.02f, GetScreenHeight() * 0.1f };
+}
+
+void UpdateShovel()
+{
+    int range = shovel.interact_radius;
+
+    if ((shovel.position.x - range < player.position.x) && (player.position.x < shovel.position.x + range) &&
+        (shovel.position.y - range < player.position.y) && (player.position.y < shovel.position.y + range))
+    {
+        shovel.is_in_player_inventory = true;
+    }
+    bool draw_shovel = shovel.is_in_player_inventory;
+}
+
+void UpdateWateringCan()
+{
+    int range = watering_can.interact_radius;
+
+    if ((watering_can.position.x - range < player.position.x) && (player.position.x < watering_can.position.x + range) &&
+        (watering_can.position.y - range < player.position.y) && (player.position.y < watering_can.position.y + range)) {
+        watering_can.is_in_player_inventory = true;
+    }
+
+    if (IsKeyDown(KEY_SPACE) && watering_can.is_in_player_inventory) {
+
+        watering_can.water_level--;
+    }
+
+    if (IsKeyDown(KEY_E) && watering_can.is_in_player_inventory) {
+
+        if (player.position.x > GetScreenWidth() - 180 && player.position.y > GetScreenHeight() - 180) {
+
+            watering_can.water_level = 50;
+        }
+
+    }
+
+    if (watering_can.water_level <= 0) {
+
+        Notification("Watering Can is empty! Refill it at the pond!", 5);
+    }
+}
+
+//****************INVENTORY*******************
+
+void RenderInventory()
+{
+    int apple_count = player.apples;
+    int corn_count = player.corn;
+    int wheat_count = player.wheat;
+    int wool_count = player.wool;
+    int milk_count = player.milk;
+    int egg_count = player.eggs;
+
+    std::string apples_counter = "Apples: ";
+    std::string corn_counter = "Crops: ";
+    std::string milk_counter = "Milk: ";
+    std::string wool_counter = "Wool: ";
+    std::string eggs_counter = "Eggs: ";
+
+
+    std::string apple_count_s = std::to_string(apple_count);
+    std::string corn_count_s = std::to_string(corn_count);
+    std::string wool_count_s = std::to_string(wool_count);
+    std::string milk_count_s = std::to_string(milk_count);
+    std::string egg_count_s = std::to_string(egg_count);
+
+    DrawText(apples_counter.c_str(), 300, 700, 20, LIGHTGRAY);
+    DrawText(apple_count_s.c_str(), 375, 700, 20, ORANGE);
+
+    DrawText(corn_counter.c_str(), 400, 700, 20, LIGHTGRAY);
+    DrawText(corn_count_s.c_str(), 470, 700, 20, ORANGE);
+
+    DrawText(wool_counter.c_str(), 500, 700, 20, LIGHTGRAY);
+    DrawText(wool_count_s.c_str(), 560, 700, 20, ORANGE);
+
+    DrawText(milk_counter.c_str(), 600, 700, 20, LIGHTGRAY);
+    DrawText(milk_count_s.c_str(), 650, 700, 20, ORANGE);
+
+    DrawText(eggs_counter.c_str(), 700, 700, 20, LIGHTGRAY);
+    DrawText(egg_count_s.c_str(), 760, 700, 20, ORANGE);
+
+
+    DrawText("Tools:", 810, 700, 20, LIGHTGRAY);
+
+    if (shovel.is_in_player_inventory) {
+
+        DrawText("Shovel, ", 890, 700, 20, ORANGE);
+    }
+
+    if (watering_can.is_in_player_inventory)
+    {
+
+        DrawText("Watering Can:", 980, 700, 20, ORANGE);
+
+        std::string level = std::to_string(watering_can.water_level);
+
+        if (watering_can.water_level < 0)
+        {
+            DrawText("0", 1120, 700, 20, ORANGE);
+        }
+        else
+        {
+            DrawText(level.c_str(), 1120, 700, 20, ORANGE);
+        }
+
+    }
+}
+
+//***********LEVEL****************
+
+void InitialiseLevel()
+{
+    Texture2D house_1 = LoadTexture(". / Assets / house1.png");
+    Texture2D house_2 = LoadTexture(". / Assets / house2.png");
+    Texture2D house_3 = LoadTexture(". / Assets / house3.png");
+
+    Texture2D current_house = house_1;
+};
+
+//*************SHOP**************
+
+int AskForUserInput() {
+
+    bool input = false;
+    if (IsKeyPressed(KEY_ONE)) {
+        return 1;
+    }
+
+    if (IsKeyPressed(KEY_FOUR)) {
+        return 4;
+    }
+    else {
+        return 0;
+    }
+
+}
+
+void ShopUserInput() {
+
+    bool shop_open = true;
+
+    while (shop_open) {
+
+        int user_input = AskForUserInput();
+
+        switch (user_input)
+        {
+
+        case 1:
+            DrawBuyMenu();
+        case 4:
+            shop_open = false;
+        default:
+            shop_open = false;
+            break;
+        }
+    }
+}
+
+void InShop()
+{
+
+    bool inside_shop = (player.position.x > 0 && player.position.x < 170 && player.position.y > GetScreenHeight() - 150 && player.position.y < GetScreenHeight());
+
+    if (IsKeyPressed(KEY_SPACE) && inside_shop) {
+        player.shopping = !player.shopping;
+
+        DrawShopMenu();
+        ShopUserInput();
+    }
+
+    else if (player.shopping && inside_shop) {
+        DrawShopMenu();
+        ShopUserInput();
+    }
+
+    else if (!inside_shop) {
+        player.shopping = false;
+    }
+
+    else {
+        return;
+    }
+}
+
+//**********APPLES**********
+
+int timer = 1;
+
+std::vector<Apple> apple{};
 
 void Applegrowth()
 {
     timer++;
     int rand = GetRandomValue(1, 8);
-    if (timer % 1800 == 0 && apple.size() < 40)                //CHANGE "1800" IF YOU WANT APPLES TO APPEAR MORE/LESS
+    if (timer % 1800 == 0 && apple.size() < 40)
     {
 
         int xp = 0;
@@ -145,95 +431,23 @@ void Applegrowth()
             xp = GetRandomValue(260, 330);
             yp = GetRandomValue(120, 180);
             break;
-        }      
+        }      // <--- x and y position generation
 
 
-        Apple new_apple(rand, xp, yp);          
+        Apple new_apple(rand, xp, yp);          // ----  Work in Progress  ----
         apple.push_back(new_apple);
     }
 
     for (Apple& apple : apple)
     {
         DrawCircle(apple.x_pos, apple.y_pos, apple.stage + 2, apple.apple_color);
-        if (timer % 600 == 0)                                                             //CHANGE "600" IF YOU WANT APPLES TO APPEAR MORE/LESS
+        if (timer % 600 == 0)
         {
             if (apple.stage != 6) apple.stage++;
             if (apple.stage == 3) apple.apple_color = ORANGE;
             if (apple.stage == 6) apple.apple_color = RED;
         }
 
-    }
-}
-
-void DrawTools()
-{
-    if (!shovel.is_in_player_inventory) {
-
-        DrawRectangleGradientV(shovel.position.x, shovel.position.y, shovel.size.x, shovel.size.y, YELLOW, BROWN);
-    }
-    if (!watering_can.is_in_player_inventory) {
-
-        DrawRectangleGradientV(watering_can.position.x, watering_can.position.y, watering_can.size.x, watering_can.size.y, DARKBLUE, BLUE);
-    }
-}
-
-void ToolsGUI() {
-
-    DrawText("Tools:", 0, 5, 20, GOLD);
-
-    if (shovel.is_in_player_inventory) {
-
-        DrawText("Shovel", 0, 25, 10, WHITE);
-    }
-
-    if (watering_can.is_in_player_inventory) {
-
-        DrawText("Watering Can", 0, 35, 10, WHITE);
-    }
-
-}
-
-
-void UpdateShovel()
-{
-    int range = shovel.interact_radius;
-
-    if ((shovel.position.x - range < player.position.x) && (player.position.x < shovel.position.x + range) &&
-        (shovel.position.y - range < player.position.y) && (player.position.y < shovel.position.y + range)) {
-        shovel.is_in_player_inventory = true;
-    }
-    bool draw_shovel = shovel.is_in_player_inventory;
-}
-
-void UpdateWateringCan()
-{
-    int range = watering_can.interact_radius;
-
-    if ((watering_can.position.x - range < player.position.x) && (player.position.x < watering_can.position.x + range) &&
-        (watering_can.position.y - range < player.position.y) && (player.position.y < watering_can.position.y + range)) {
-        watering_can.is_in_player_inventory = true;
-        
-    }
-    bool draw_watering_can = watering_can.is_in_player_inventory;
-
-    if (IsKeyDown(KEY_SPACE) && watering_can.is_in_player_inventory) {
-
-        watering_can.water_level--;
-    }
-
-    if (IsKeyDown(KEY_E) && watering_can.is_in_player_inventory) {
-
-        if (player.position.x > GetScreenWidth() - 180 && player.position.y > GetScreenHeight() - 180) {
-
-            watering_can.water_level = 50;
-        }
-
-    }
-
-    if (watering_can.water_level <= 0) {
-
-        Notification("Watering Can is empty! Refill it at the pond!", 4);
-        
     }
 }
 
@@ -290,25 +504,24 @@ void HarvestApples()
         {
             if (apple[current].tree_nr == tree_harvested && apple[current].stage == 6)
             {
-                player.collected_apple_count++;
+                player.apples++;
                 apple.erase(apple.begin() + current);
                 break;
             }
         }
     }
 
-    
-    std::string ap_count = std::to_string(player.collected_apple_count);
-    DrawText(ap_count.c_str(), 700, 40, 20, YELLOW);
-    DrawText("Collected apple count: ", 450, 40, 20, BLACK);
 
 }
 
+//**********FARMING*******************
+
 std::vector<Farmtile> tile{};
 
-void InitFarming()
-{    
-    Texture2D Spritesheet = LoadTexture("C:/Users/julij/Desktop/Visby/Programming/Farmitup/Spritesheet.png");
+void InitialiseFarming()
+{
+    Texture2D Spritesheet = LoadTexture("./Assets/Spritesheet.png");
+
     for (int c = 0; c < 3; c++)
     {
         for (int a = 0; a < 5; a++)
@@ -318,32 +531,30 @@ void InitFarming()
             tile.push_back(farmtile);
         }
     }
-    
+
 }
 
 
-
-
-void Farmtilerender()
+void RenderFarmTiles()
 {
-    
+
     if (IsKeyPressed(KEY_C)) y_select = (y_select == 70) ? 90 : 70;
 
     DrawRectangle(670, y_select, 20, 20, ORANGE);
-    std::string corn_count = std::to_string(player.collected_crops);
+    std::string corn_count = std::to_string(player.corn);
     DrawText(corn_count.c_str(), 700, 70, 20, YELLOW);
     DrawText("Collected corn: ", 450, 70, 20, BLACK);
 
-    std::string wheat_count = std::to_string(player.collected_wheat);
+    std::string wheat_count = std::to_string(player.wheat);
     DrawText(wheat_count.c_str(), 700, 90, 20, YELLOW);
     DrawText("Collected wheat: ", 450, 90, 20, BLACK);
-    
+
     for (Farmtile& tile : tile)
     {
         if (IsKeyPressed(KEY_SPACE) && player.position.x >= tile.position.x && player.position.x <= tile.position.x + 76 &&
             player.position.y >= tile.position.y && player.position.y <= tile.position.y + 76)
         {
-            
+
             //WATERING CORN
 
             if (tile.watered == false && tile.stage >= 1 && tile.stage != 4 && tile.stage != 9 && watering_can.is_in_player_inventory && watering_can.water_level > 0)
@@ -356,14 +567,14 @@ void Farmtilerender()
 
             if (y_select == 70)            //PLANTING  CORN
             {
-                if (player.collected_crops >= 9 && tile.stage < 1 && shovel.is_in_player_inventory)
+                if (player.corn >= 9 && tile.stage < 1 && shovel.is_in_player_inventory)
                 {
-                    
+
                     tile.stage++;
-                    player.collected_crops = player.collected_crops - 9;
+                    player.corn = player.corn - 9;
                 }
 
-                if (player.collected_crops <= 9 && tile.stage < 1 && shovel.is_in_player_inventory)
+                if (player.corn <= 9 && tile.stage < 1 && shovel.is_in_player_inventory)
                 {
                     Notification("You need at least 9 seeds of corn to plant corn", 5);
                 }
@@ -374,14 +585,14 @@ void Farmtilerender()
             }
             else if (y_select == 90)      //PLANTING  WHEAT
             {
-                if (player.collected_wheat >= 16 && tile.stage < 1 && shovel.is_in_player_inventory)
+                if (player.wheat >= 16 && tile.stage < 1 && shovel.is_in_player_inventory)
                 {
 
                     tile.stage = 5;
-                    player.collected_wheat = player.collected_wheat - 16;
+                    player.wheat = player.wheat - 16;
                 }
 
-                if (player.collected_crops <= 9 && tile.stage < 1 && shovel.is_in_player_inventory)
+                if (player.corn <= 9 && tile.stage < 1 && shovel.is_in_player_inventory)
                 {
                     Notification("You need at least 16 seeds of wheat to plant wheat", 3);
                 }
@@ -390,7 +601,7 @@ void Farmtilerender()
                     Notification("You need to have shovel to plant", 3);
                 }
             }
-            
+
 
             //HARVESTING
 
@@ -398,31 +609,31 @@ void Farmtilerender()
             {
                 tile.stage = 0;
                 int grown_corn = GetRandomValue(14, 30);
-                player.collected_crops = player.collected_crops + grown_corn;
+                player.corn = player.corn + grown_corn;
                 tile.watered = false;
             }
             else if (tile.stage == 9)    //HARVESTING  WHEAT
             {
                 tile.stage = 0;
                 int wheat_grown = GetRandomValue(19, 40);
-                player.collected_wheat = player.collected_wheat + wheat_grown;
+                player.wheat = player.wheat + wheat_grown;
                 tile.watered = false;
             }
 
-            
+
         }
-        
+
 
 
         tile.tile_color = tile.watered ? DARKBROWN : BROWN;
         DrawRectangle(tile.position.x, tile.position.y, tile.size.x, tile.size.y, tile.tile_color);
-        
+
         switch (tile.stage)
         {
         case 1:
             DrawTextureRec(tile.texture, Rectangle{ 125,290,30, 30 }, Vector2{ tile.position.x, tile.position.y + 5 }, WHITE);
-            DrawTextureRec(tile.texture, Rectangle{ 125,290,30, 30 }, Vector2{ tile.position.x + 20, tile.position.y + 5}, WHITE);
-            DrawTextureRec(tile.texture, Rectangle{ 125,290,30, 30 }, Vector2{ tile.position.x + 40, tile.position.y + 5}, WHITE);
+            DrawTextureRec(tile.texture, Rectangle{ 125,290,30, 30 }, Vector2{ tile.position.x + 20, tile.position.y + 5 }, WHITE);
+            DrawTextureRec(tile.texture, Rectangle{ 125,290,30, 30 }, Vector2{ tile.position.x + 40, tile.position.y + 5 }, WHITE);
             DrawTextureRec(tile.texture, Rectangle{ 125,290,30, 30 }, Vector2{ tile.position.x, tile.position.y + 25 }, WHITE);
             DrawTextureRec(tile.texture, Rectangle{ 125,290,30, 30 }, Vector2{ tile.position.x + 20, tile.position.y + 25 }, WHITE);
             DrawTextureRec(tile.texture, Rectangle{ 125,290,30, 30 }, Vector2{ tile.position.x + 40, tile.position.y + 25 }, WHITE);
@@ -431,7 +642,7 @@ void Farmtilerender()
             DrawTextureRec(tile.texture, Rectangle{ 125,290,30, 30 }, Vector2{ tile.position.x + 40, tile.position.y + 45 }, WHITE);
             break;
         case 2:
-            
+
             DrawTextureRec(tile.texture, Rectangle{ 95,290,30, 30 }, Vector2{ tile.position.x, tile.position.y + 5 }, WHITE);
             DrawTextureRec(tile.texture, Rectangle{ 95,290,30, 30 }, Vector2{ tile.position.x + 20, tile.position.y + 5 }, WHITE);
             DrawTextureRec(tile.texture, Rectangle{ 95,290,30, 30 }, Vector2{ tile.position.x + 40, tile.position.y + 5 }, WHITE);
@@ -519,10 +730,10 @@ void Farmtilerender()
             DrawTextureRec(tile.texture, Rectangle{ 220,130,30, 30 }, Vector2{ tile.position.x + 20, tile.position.y + 45 }, WHITE);
             DrawTextureRec(tile.texture, Rectangle{ 220,130,30, 30 }, Vector2{ tile.position.x + 40, tile.position.y + 45 }, WHITE);
             break;
-   
+
         default:
-            break;       
-        }    
+            break;
+        }
         // ^ SCREAMER ALERT ^ //
 
         //CORN IS GROWING  (CHANGE "chance_to_grow" TO MAKE CORN GROW FASTER/SLOWER)
@@ -538,50 +749,62 @@ void Farmtilerender()
         else if (tile.corn == false)
         {
             int chance_to_grow = tile.watered ? GetRandomValue(0, 1600) : GetRandomValue(0, 3500);
-            if (chance_to_grow == 0 && tile.stage != 0 && tile.stage != 10)
+            if (chance_to_grow == 0 && tile.stage != 0 && tile.stage != 9)
             {
                 tile.stage++;
                 tile.watered = false;
             }
         }
-        
+
     }
 }
 
-//      ----------------------------       Animals      -----------------------------------------          //
-
-//DrawRectangle(screenWidth * 0.5, screenHeight * 0.15, 140, 170, BEIGE);                                 //
-//DrawRectangle(screenWidth * 0.6, screenHeight * 0.55, 150, 150, BEIGE);                                 // Places for animals
-//DrawRectangle(screenWidth * 0.2, screenHeight * 0.4, 160, 170, BEIGE);
+//***********ANIMALS**************
 
 std::vector<Animal> animals{};
 
 
-void InitAnimals()
+void InitialiseAnimals()
 {
-    Texture2D Cow_t = LoadTexture("C:/Users/julij/Desktop/Visby/Programming/Farmitup");
-    Texture2D Sheep_t = LoadTexture("C:/Users/julij/Desktop/Visby/Programming/Farmitup");
-    Texture2D Chicken_t = LoadTexture("C:/Users/julij/Destop/Visby/Programming/Farmitup");
+    //Texture2D animal = LoadTexture("C:/Users/julij/Desktop/Visby/Programming/Farmitup/Assets/animals.png");
 
     for (int c = 1; c < 3; c++)
     {
         Animal sheep("sheep");
-        sheep.texture = Sheep_t;
+        sheep.texture = LoadTexture("./Assets/animals.png");
         animals.push_back(sheep);
     }
     for (int c = 1; c < 3; c++)
     {
         Animal chicken("chicken");
-        chicken.texture = Chicken_t;
+        chicken.texture = LoadTexture("./Assets/chicken.png");
         animals.push_back(chicken);
     }
     for (int c = 1; c < 4; c++)
     {
         Animal cow("cow");
-        cow.texture = Cow_t;
+        cow.texture = LoadTexture("./Assets/animals.png");
         animals.push_back(cow);
     }
 }
+
+/*
+void InitialiseAnimals(int type)
+{
+    Texture2D animal = LoadTexture("C:/Users/julij/Desktop/Visby/Programming/Farmitup/Assets/animals.png");
+    
+    switch (type)
+    {
+    case 1:
+        
+        break;
+    case 2:
+        break;
+    case 3:
+        break;
+    }
+    Animal sheep("sheep");
+}*/
 
 
 void UpdateAnimals()
@@ -589,49 +812,83 @@ void UpdateAnimals()
     if (IsKeyPressed(KEY_ONE))
     {
         Animal sheep("sheep");
-        
+        sheep.texture = LoadTexture("./Assets/animals.png");
         animals.push_back(sheep);
 
     }
     if (IsKeyPressed(KEY_TWO))
     {
         Animal chicken("chicken");
-        
+        chicken.texture = LoadTexture("./Assets/chicken.png");
         animals.push_back(chicken);
     }
     if (IsKeyPressed(KEY_THREE))
     {
         Animal cow("cow");
-       
+        cow.texture = LoadTexture("./Assets/animals.png");
+
         animals.push_back(cow);
     }
 
     for (Animal& animal : animals)
     {
-        /*if (timer % (animal.activity * 2) && animal.name == "cow")    //timer % animal.activity_1 == 0
-        {
-            animal.ready == true;
-            animal.walking == false;
-        }*/
+        // MILKING COWS
+
         if (animal.ready && animal.name == "cow")
         {
-            DrawRectangle(animal.position.x + 6, animal.position.y - 10, 4, 9, GREEN);
-            if (IsKeyPressed(KEY_SPACE) && player.position.x >= animal.position.x - 10 && player.position.x <= animal.position.x + 10 &&
-                player.position.y >= animal.position.y - 10 && player.position.y <= animal.position.y + 10)
+            
+            if (IsKeyPressed(KEY_SPACE) && player.position.x >= animal.position.x - 30 && player.position.x <= animal.position.x + 30 &&
+                player.position.y >= animal.position.y - 30 && player.position.y <= animal.position.y + 30)
             {
                 animal.ready = false;
-                player.collected_milk++;
+                player.milk++;
             }
         }
+
+        //COLLECT CHICKEN EGGS
+
+        if (animal.ready && animal.name == "chicken")
+        {
+
+            if (IsKeyPressed(KEY_SPACE) && player.position.x >= animal.position.x - 30 && player.position.x <= animal.position.x + 30 &&
+                player.position.y >= animal.position.y - 30 && player.position.y <= animal.position.y + 30)
+            {
+                animal.ready = false;
+                player.eggs++;
+            }
+        }
+
+        //GET WOOL FROM SHEEP
+
+        if (animal.ready && animal.name == "sheep")
+        {
+
+            if (IsKeyPressed(KEY_SPACE) && player.position.x >= animal.position.x - 30 && player.position.x <= animal.position.x + 30 &&
+                player.position.y >= animal.position.y - 30 && player.position.y <= animal.position.y + 30)
+            {
+                animal.ready = false;
+                player.wool++;
+            }
+        }
+
+        // ANIMALS WALKING
+
         else if (animal.walking)
         {
             animal.position.x = animal.position.x + animal.x_speed * 0.003 * animal.x_direction;
             animal.position.y = animal.position.y + animal.y_speed * 0.003 * animal.y_direction;
+
+            /*
+            if (animal.x_speed > animal.position.x) animal.position.x--;
+            if (animal.x_speed < animal.position.x)  animal.position.x++;
+            if (animal.y_speed < animal.position.y)  animal.position.y++;
+            if (animal.y_speed > animal.position.y)  animal.position.y--;
+            */
         }
 
         if (timer % animal.activity == 0 && animal.ready == false)
         {
-            int chance_to_be_ready = GetRandomValue(0, 10);
+            int chance_to_be_ready = GetRandomValue(0, 20);
             animal.walking = (animal.walking == true || chance_to_be_ready == 0) ? false : true;
             if (chance_to_be_ready == 0)
             {
@@ -639,6 +896,7 @@ void UpdateAnimals()
             }
             else if (animal.walking)
             {
+                
                 do
                 {
                     animal.x_speed = GetRandomValue(0, 100);
@@ -648,49 +906,58 @@ void UpdateAnimals()
                 if (animal.x_direction == 0) animal.x_direction = -1;
                 animal.y_direction = GetRandomValue(0, 1);
                 if (animal.y_direction == 0) animal.y_direction = -1;
+                
+                // ===============** Walking version II **=======================
+                /*
+                do
+                {
+                    animal.x_speed = GetRandomValue(animal.x_left_border + 4, animal.x_right_border - 4);
+                    animal.y_speed = GetRandomValue(animal.y_top_border + 4, animal.y_bottom_border - 4);
+                } while (animal.x_speed + animal.y_speed != (animal.x_right_border + animal.y_bottom_border) / 2);*/
             }
         }
-        
-        
-        
-        //if (animal.position.x <= animal.x_left_border || animal.position.x >= animal.x_right_border) animal.x_direction *= -1;
-        //if (animal.position.y <= animal.y_top_border || animal.position.y >= animal.y_bottom_border) animal.y_direction *= -1;
+
+        //Trying to make borders here
+
+        if (animal.position.x <= animal.x_left_border || animal.position.x >= animal.x_right_border) animal.x_direction *= -1;
+        if (animal.position.y <= animal.y_top_border || animal.position.y >= animal.y_bottom_border) animal.y_direction *= -1;
 
         //if (animal.position.x <= animal.x_left_border || animal.position.x >= animal.x_right_border) animal.walking = false;
         //if (animal.position.y <= animal.y_top_border || animal.position.y >= animal.y_bottom_border) animal.walking = false;
-        
+
     }
-    std::string milk_count = std::to_string(player.collected_milk);
+    std::string milk_count = std::to_string(player.milk);
     DrawText(milk_count.c_str(), 600, 110, 20, YELLOW);
     DrawText("Collected milk: ", 450, 110, 20, BLACK);
 }
 
+
+//float pos = 0;
 void RenderAnimals()
 {
     for (Animal& animal : animals)
     {
         if (animal.name == "sheep")
         {
-            DrawRectangle(animal.position.x, animal.position.y, 13, 10, WHITE);
+            if (animal.x_direction == -1) DrawTextureRec(animal.texture, Rectangle{ 0, 0, 60, 30 }, Vector2{ animal.position.x, animal.position.y }, WHITE);
+            else DrawTextureRec(animal.texture, Rectangle{ 0, 30, 60, 30 }, Vector2{ animal.position.x, animal.position.y }, WHITE);
         }
         if (animal.name == "chicken")
         {
-            DrawRectangle(animal.position.x, animal.position.y, 9, 9, BROWN);
+            if (animal.x_direction == -1) DrawTextureRec(animal.texture, Rectangle{ 0, 30, 30, 30 }, Vector2{ animal.position.x, animal.position.y }, WHITE);
+            else DrawTextureRec(animal.texture, Rectangle{ 0, 0, 30, 30 }, Vector2{ animal.position.x, animal.position.y }, WHITE);
         }
         if (animal.name == "cow")
         {
-            DrawRectangle(animal.position.x, animal.position.y, 15, 12, BLACK);
+            if (animal.x_direction == -1) DrawTextureRec(animal.texture, Rectangle{ 0, 80, 60, 30 }, Vector2{ animal.position.x, animal.position.y }, WHITE);
+            else DrawTextureRec(animal.texture, Rectangle{ 0, 110, 60, 40 }, Vector2{ animal.position.x, animal.position.y }, WHITE);
         }
+
+        if (animal.ready)
+        {
+            DrawRectangle(animal.position.x + 6, animal.position.y - 10, 4, 9, GREEN);             // Rendering the green rectangle for signalizing that the animal is ready to be interacted with
+        }
+
+        
     }
-}
-
-void DrawPlayer()
-{
-    int posX = player.position.x;
-    int posY = player.position.y;
-    int width = player.size.x;
-    int height = player.size.y;
-    Color color = player.color;
-
-    DrawRectangle(posX, posY, width, height, color);
 }
