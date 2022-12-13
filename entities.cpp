@@ -766,7 +766,6 @@ std::vector<Animal> animals{};
 
 void InitialiseAnimals()
 {
-    //Texture2D animal = LoadTexture("C:/Users/julij/Desktop/Visby/Programming/Farmitup/Assets/animals.png");
 
     for (int c = 1; c < 3; c++)
     {
@@ -787,25 +786,6 @@ void InitialiseAnimals()
         animals.push_back(cow);
     }
 }
-
-/*
-void InitialiseAnimals(int type)
-{
-    Texture2D animal = LoadTexture("C:/Users/julij/Desktop/Visby/Programming/Farmitup/Assets/animals.png");
-    
-    switch (type)
-    {
-    case 1:
-        
-        break;
-    case 2:
-        break;
-    case 3:
-        break;
-    }
-    Animal sheep("sheep");
-}*/
-
 
 void UpdateAnimals()
 {
@@ -878,12 +858,6 @@ void UpdateAnimals()
             animal.position.x = animal.position.x + animal.x_speed * 0.003 * animal.x_direction;
             animal.position.y = animal.position.y + animal.y_speed * 0.003 * animal.y_direction;
 
-            /*
-            if (animal.x_speed > animal.position.x) animal.position.x--;
-            if (animal.x_speed < animal.position.x)  animal.position.x++;
-            if (animal.y_speed < animal.position.y)  animal.position.y++;
-            if (animal.y_speed > animal.position.y)  animal.position.y--;
-            */
         }
 
         if (timer % animal.activity == 0 && animal.ready == false)
@@ -906,24 +880,29 @@ void UpdateAnimals()
                 if (animal.x_direction == 0) animal.x_direction = -1;
                 animal.y_direction = GetRandomValue(0, 1);
                 if (animal.y_direction == 0) animal.y_direction = -1;
-                
-                // ===============** Walking version II **=======================
-                /*
-                do
-                {
-                    animal.x_speed = GetRandomValue(animal.x_left_border + 4, animal.x_right_border - 4);
-                    animal.y_speed = GetRandomValue(animal.y_top_border + 4, animal.y_bottom_border - 4);
-                } while (animal.x_speed + animal.y_speed != (animal.x_right_border + animal.y_bottom_border) / 2);*/
+             
             }
         }
 
-        //Trying to make borders here
+        
+        if (animal.name == "sheep")
+        {
+            if (animal.position.x <= GetScreenWidth() * 0.5 || animal.position.x >= GetScreenWidth() * 0.5 + 150) animal.x_direction *= -1;
+            if (animal.position.y <= GetScreenHeight() * 0.15 || animal.position.y >= GetScreenHeight() * 0.15 + 190) animal.y_direction *= -1;
+        }
 
-        if (animal.position.x <= animal.x_left_border || animal.position.x >= animal.x_right_border) animal.x_direction *= -1;
-        if (animal.position.y <= animal.y_top_border || animal.position.y >= animal.y_bottom_border) animal.y_direction *= -1;
+        if (animal.name == "cow")
+        {
+            if (animal.position.x <= GetScreenWidth() * 0.46 || animal.position.x >= GetScreenWidth() * 0.48 + 280) animal.x_direction *= -1;
+            if (animal.position.y <= GetScreenHeight() * 0.55 || animal.position.y >= GetScreenHeight() * 0.55 + 130) animal.y_direction *= -1;
+        }
 
-        //if (animal.position.x <= animal.x_left_border || animal.position.x >= animal.x_right_border) animal.walking = false;
-        //if (animal.position.y <= animal.y_top_border || animal.position.y >= animal.y_bottom_border) animal.walking = false;
+        if (animal.name == "chicken")
+        {
+            if (animal.position.x <= GetScreenWidth() * 0.2 || animal.position.x >= GetScreenWidth() * 0.2 + 160) animal.x_direction *= -1;
+            if (animal.position.y <= GetScreenHeight() * 0.4 || animal.position.y >= GetScreenHeight() * 0.4 + 160) animal.y_direction *= -1;
+        }
+        
 
     }
     std::string milk_count = std::to_string(player.milk);
@@ -932,7 +911,7 @@ void UpdateAnimals()
 }
 
 
-//float pos = 0;
+
 void RenderAnimals()
 {
     for (Animal& animal : animals)
