@@ -1,10 +1,11 @@
-#include "Headers/entities.h"
+#include "../Headers/entities.h"
 #include "raylib.h"
 #include "raymath.h"
 #include <string>
 #include <iostream>
 #include <vector>
-#include "Headers/shop.h"
+#include "../Headers/shop.h"
+
 
 constexpr int PLAYER_SPEED = 5;
 
@@ -213,31 +214,31 @@ void UpdateShovel()
 
 void UpdateWateringCan()
 {
-    int range = watering_can.interact_radius;
+        int range = watering_can.interact_radius;
 
-    if ((watering_can.position.x - range < player.position.x) && (player.position.x < watering_can.position.x + range) &&
-        (watering_can.position.y - range < player.position.y) && (player.position.y < watering_can.position.y + range)) {
-        watering_can.is_in_player_inventory = true;
-    }
-
-    if (IsKeyDown(KEY_SPACE) && watering_can.is_in_player_inventory) {
-
-        watering_can.water_level--;
-    }
-
-    if (IsKeyDown(KEY_E) && watering_can.is_in_player_inventory) {
-
-        if (player.position.x > GetScreenWidth() - 180 && player.position.y > GetScreenHeight() - 180) {
-
-            watering_can.water_level = 50;
+        if ((watering_can.position.x - range < player.position.x) && (player.position.x < watering_can.position.x + range) &&
+            (watering_can.position.y - range < player.position.y) && (player.position.y < watering_can.position.y + range)) {
+            watering_can.is_in_player_inventory = true;
         }
 
-    }
+        if (IsKeyDown(KEY_SPACE) && watering_can.is_in_player_inventory) {
 
-    if (watering_can.water_level <= 0) {
+            watering_can.water_level--;
+        }
 
-        Notification("Watering Can is empty! Refill it at the pond!", 5);
-    }
+        if (IsKeyDown(KEY_E) && watering_can.is_in_player_inventory) {
+
+            if (player.position.x > GetScreenWidth() - 180 && player.position.y > GetScreenHeight() - 180) {
+
+                watering_can.water_level = 50;
+            }
+
+        }
+
+        if (watering_can.water_level <= 0) {
+
+            Notification("Watering Can is empty! Refill it at the pond!", 5);
+        }
 }
 
 //****************INVENTORY*******************
@@ -287,14 +288,14 @@ void RenderInventory()
         DrawText("Shovel, ", 890, 700, 20, ORANGE);
     }
 
-    if (watering_can.is_in_player_inventory)
+    if (watering_can.is_in_player_inventory) 
     {
 
         DrawText("Watering Can:", 980, 700, 20, ORANGE);
 
         std::string level = std::to_string(watering_can.water_level);
 
-        if (watering_can.water_level < 0)
+        if(watering_can.water_level < 0)
         {
             DrawText("0", 1120, 700, 20, ORANGE);
         }
@@ -302,7 +303,7 @@ void RenderInventory()
         {
             DrawText(level.c_str(), 1120, 700, 20, ORANGE);
         }
-
+        
     }
 }
 
@@ -357,7 +358,7 @@ void ShopUserInput() {
     }
 }
 
-void InShop()
+void InShop() 
 {
 
     bool inside_shop = (player.position.x > 0 && player.position.x < 170 && player.position.y > GetScreenHeight() - 150 && player.position.y < GetScreenHeight());
@@ -453,40 +454,40 @@ void Applegrowth()
 
 int TreeLocator()
 {
-    if (player.position.y < 120 && player.position.y > 40)
+    if (player.position.y < 170 && player.position.y > 90)
     {
-        if (player.position.x >= 80 && player.position.x < 150)
+        if (player.position.x >= 145 && player.position.x < 175)
         {
             return 1;
         }
-        if (player.position.x >= 150 && player.position.x < 200)
+        if (player.position.x >= 175 && player.position.x < 205)
         {
             return 2;
         }
-        if (player.position.x >= 200 && player.position.x < 250)
+        if (player.position.x >= 205 && player.position.x < 235)
         {
             return 3;
         }
-        if (player.position.x >= 250 && player.position.x < 330)
+        if (player.position.x >= 235 && player.position.x < 265)
         {
             return 4;
         }
     }
-    if (player.position.y < 220 && player.position.y >= 120)
+    if (player.position.y < 250 && player.position.y >= 170)
     {
-        if (player.position.x >= 80 && player.position.x < 150)
+        if (player.position.x >= 145 && player.position.x < 175)
         {
             return 5;
         }
-        if (player.position.x >= 150 && player.position.x < 200)
+        if (player.position.x >= 175 && player.position.x < 205)
         {
             return 6;
         }
-        if (player.position.x >= 200 && player.position.x < 250)
+        if (player.position.x >= 205 && player.position.x < 235)
         {
             return 7;
         }
-        if (player.position.x >= 250 && player.position.x < 330)
+        if (player.position.x >= 235 && player.position.x < 265)
         {
             return 8;
         }
@@ -510,17 +511,8 @@ void HarvestApples()
             }
         }
     }
-    DrawText("100", 100, 0, 15, BLACK);
-    DrawText("250", 250, 0, 15, BLACK);
-    DrawText("150", 150, 0, 15, BLACK);
-    DrawText("300", 300, 0, 15, BLACK);
-    DrawText("200", 200, 0, 15, BLACK);
 
-    DrawText("20", 0, 20, 15, BLACK);
-    DrawText("40", 0, 40, 15, BLACK);
-    DrawText("60", 0, 60, 15, BLACK);
-    DrawText("80", 0, 80, 15, BLACK);
-    DrawText("100", 0, 100, 15, BLACK);
+
 }
 
 //**********FARMING*******************
@@ -540,6 +532,7 @@ void InitialiseFarming()
             tile.push_back(farmtile);
         }
     }
+
 }
 
 
@@ -774,122 +767,60 @@ std::vector<Animal> animals{};
 
 void InitialiseAnimals()
 {
+    Texture2D Cow_t = LoadTexture("");
+    Texture2D Sheep_t = LoadTexture("");
+    Texture2D Chicken_t = LoadTexture("");
 
     for (int c = 1; c < 3; c++)
     {
         Animal sheep("sheep");
-        sheep.texture = LoadTexture("./Assets/animals.png");
-        sheep.sound = LoadSound("./Assets/sheep_baa.wav");  //      <-------------  I UPLOAD THE SOUND HERE
+        sheep.texture = Sheep_t;
         animals.push_back(sheep);
     }
     for (int c = 1; c < 3; c++)
     {
         Animal chicken("chicken");
-        chicken.texture = LoadTexture("./Assets/chicken.png");
-        chicken.sound = LoadSound("./Assets/Chicken.wav"); //      <-------------  I UPLOAD THE SOUND HERE
+        chicken.texture = Chicken_t;
         animals.push_back(chicken);
     }
     for (int c = 1; c < 4; c++)
     {
         Animal cow("cow");
-        cow.texture = LoadTexture("./Assets/animals.png");
-        cow.sound = LoadSound("./Assets/cow_moo.wav"); //      <-------------  I UPLOAD THE SOUND HERE
+        cow.texture = Cow_t;
         animals.push_back(cow);
     }
 }
 
+
 void UpdateAnimals()
 {
-
-    // SPAWNING ANIMALS------------------------------------
-
     if (IsKeyPressed(KEY_ONE))
     {
         Animal sheep("sheep");
-        sheep.texture = LoadTexture("./Assets/animals.png");
-        sheep.sound = LoadSound("./Assets/sheep_baa.wav"); //      <-------------  I UPLOAD THE SOUND HERE
+
         animals.push_back(sheep);
 
     }
     if (IsKeyPressed(KEY_TWO))
     {
         Animal chicken("chicken");
-        chicken.texture = LoadTexture("./Assets/chicken.png");
-        chicken.sound = LoadSound("./Assets/Chicken.wav"); //      <-------------  I UPLOAD THE SOUND HERE
+
         animals.push_back(chicken);
     }
     if (IsKeyPressed(KEY_THREE))
     {
         Animal cow("cow");
-        cow.texture = LoadTexture("./Assets/animals.png");
-        cow.sound = LoadSound("./Assets/cow_moo.wav");//      <-------------  I UPLOAD THE SOUND HERE
+
         animals.push_back(cow);
     }
 
-    //-------------------------------------------------------
-
     for (Animal& animal : animals)
     {
-        // MILKING COWS
-
-        if (animal.ready && animal.name == "cow")
-        {
-            
-            if (IsKeyPressed(KEY_SPACE) && player.position.x >= animal.position.x - 30 && player.position.x <= animal.position.x + 30 &&
-                player.position.y >= animal.position.y - 30 && player.position.y <= animal.position.y + 30)
-            {
-                animal.ready = false;
-                player.milk++;
-            }
-        }
-
-        //COLLECT CHICKEN EGGS
-
-        if (animal.ready && animal.name == "chicken")
-        {
-
-            if (IsKeyPressed(KEY_SPACE) && player.position.x >= animal.position.x - 30 && player.position.x <= animal.position.x + 30 &&
-                player.position.y >= animal.position.y - 30 && player.position.y <= animal.position.y + 30)
-            {
-                animal.ready = false;
-                player.eggs++;
-            }
-        }
-
-        //GET WOOL FROM SHEEP
-
-        if (animal.ready && animal.name == "sheep")
-        {
-
-            if (IsKeyPressed(KEY_SPACE) && player.position.x >= animal.position.x - 30 && player.position.x <= animal.position.x + 30 &&
-                player.position.y >= animal.position.y - 30 && player.position.y <= animal.position.y + 30)
-            {
-                animal.ready = false;
-                player.wool++;
-            }
-        }
-
-        // ANIMALS WALKING
-
-        else if (animal.walking)
-        {
-            animal.position.x = animal.position.x + animal.x_speed * 0.003 * animal.x_direction;
-            animal.position.y = animal.position.y + animal.y_speed * 0.003 * animal.y_direction;
-
-        }
-
         if (timer % animal.activity == 0 && animal.ready == false)
         {
-            int chance_to_be_ready = GetRandomValue(0, 20);
-            animal.walking = (animal.walking == true || chance_to_be_ready == 0) ? false : true;
-            if (chance_to_be_ready == 0)
+            animal.walking = (animal.walking == true) ? false : true;
+            if (animal.walking)
             {
-                animal.ready = true;
-                PlaySound(animal.sound);          //      <-------------  AND I PLAY THE SOUND HERE
-            }
-            else if (animal.walking)
-            {
-                
                 do
                 {
                     animal.x_speed = GetRandomValue(0, 100);
@@ -899,38 +830,20 @@ void UpdateAnimals()
                 if (animal.x_direction == 0) animal.x_direction = -1;
                 animal.y_direction = GetRandomValue(0, 1);
                 if (animal.y_direction == 0) animal.y_direction = -1;
-             
             }
         }
-
-        
-        //BORDERS-------------------------------
-
-        if (animal.name == "sheep")
+        if (animal.walking)
         {
-            if (animal.position.x <= GetScreenWidth() * 0.5 || animal.position.x >= GetScreenWidth() * 0.5 + 150) animal.x_direction *= -1;
-            if (animal.position.y <= GetScreenHeight() * 0.15 || animal.position.y >= GetScreenHeight() * 0.15 + 190) animal.y_direction *= -1;
-        }
+            animal.position.x = animal.position.x + animal.x_speed * 0.003 * animal.x_direction;
+            animal.position.y = animal.position.y + animal.y_speed * 0.003 * animal.y_direction;
 
-        if (animal.name == "cow")
-        {
-            if (animal.position.x <= GetScreenWidth() * 0.46 || animal.position.x >= GetScreenWidth() * 0.48 + 280) animal.x_direction *= -1;
-            if (animal.position.y <= GetScreenHeight() * 0.55 || animal.position.y >= GetScreenHeight() * 0.55 + 130) animal.y_direction *= -1;
-        }
+            if (animal.position.x == animal.x_left_border || animal.position.x == animal.x_right_border) animal.x_direction * -1;
+            if (animal.position.y == animal.y_top_border || animal.position.y == animal.y_bottom_border) animal.y_direction * -1;
 
-        if (animal.name == "chicken")
-        {
-            if (animal.position.x <= GetScreenWidth() * 0.2 || animal.position.x >= GetScreenWidth() * 0.2 + 160) animal.x_direction *= -1;
-            if (animal.position.y <= GetScreenHeight() * 0.4 || animal.position.y >= GetScreenHeight() * 0.4 + 160) animal.y_direction *= -1;
         }
-        
-        //-----------------------------------------
 
     }
-    
 }
-
-
 
 void RenderAnimals()
 {
@@ -938,26 +851,16 @@ void RenderAnimals()
     {
         if (animal.name == "sheep")
         {
-            if (animal.x_direction == -1) DrawTextureRec(animal.texture, Rectangle{ 0, 0, 60, 30 }, Vector2{ animal.position.x, animal.position.y }, WHITE);
-            else DrawTextureRec(animal.texture, Rectangle{ 0, 30, 60, 30 }, Vector2{ animal.position.x, animal.position.y }, WHITE);
+            DrawRectangle(animal.position.x, animal.position.y, 13, 10, WHITE);
         }
         if (animal.name == "chicken")
         {
-            if (animal.x_direction == -1) DrawTextureRec(animal.texture, Rectangle{ 0, 30, 30, 30 }, Vector2{ animal.position.x, animal.position.y }, WHITE);
-            else DrawTextureRec(animal.texture, Rectangle{ 0, 0, 30, 30 }, Vector2{ animal.position.x, animal.position.y }, WHITE);
+            DrawRectangle(animal.position.x, animal.position.y, 9, 9, BROWN);
         }
         if (animal.name == "cow")
         {
-            if (animal.x_direction == -1) DrawTextureRec(animal.texture, Rectangle{ 0, 80, 60, 30 }, Vector2{ animal.position.x, animal.position.y }, WHITE);
-            else DrawTextureRec(animal.texture, Rectangle{ 0, 110, 60, 40 }, Vector2{ animal.position.x, animal.position.y }, WHITE);
+            DrawRectangle(animal.position.x, animal.position.y, 15, 12, BLACK);
         }
-
-        if (animal.ready)
-        {
-            DrawRectangle(animal.position.x + 6, animal.position.y - 14, 4, 10, GREEN);             // Rendering the green rectangle for signalizing that the animal is ready to be interacted with
-            DrawRectangle(animal.position.x + 6, animal.position.y - 3, 4, 4, GREEN);
-        }
-
-        
     }
 }
+

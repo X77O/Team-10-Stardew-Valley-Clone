@@ -1,4 +1,4 @@
-#include "entities.h"
+#include "../Headers/entities.h"
 
 void DrawShopMenu()
 {
@@ -19,5 +19,3 @@ void DrawBuyMenu()
 	DrawText("4. Wool", 700, 500, 25, WHITE);
 
 }
-
-
