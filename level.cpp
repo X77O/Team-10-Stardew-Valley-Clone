@@ -116,3 +116,15 @@ void RenderLevel() {
     DrawRectangleGradientH(screenWidth * 0.75f, screenHeight * 0.05f, 240, 400, ORANGE, BEIGE);             // Farmland
 
 }
+
+void RenderHowToPlay() {
+
+    DrawRectangle((GetScreenWidth() / 2) - 300, (GetScreenHeight() / 2 - 300), 600, 600, Color{ 40,40,40,175 });
+    DrawText("W - Move up", (GetScreenWidth() / 2) - 90, (GetScreenHeight() / 2 - 300) + 5, 30, RAYWHITE);
+    DrawText("S - Move down", (GetScreenWidth() / 2) - 90, (GetScreenHeight() / 2 - 270) + 5, 30, RAYWHITE);
+    DrawText("A - Move left", (GetScreenWidth() / 2) - 90, (GetScreenHeight() / 2 - 240) + 5, 30, RAYWHITE);
+    DrawText("D - Move right", (GetScreenWidth() / 2) - 90, (GetScreenHeight() / 2 - 210) + 5, 30, RAYWHITE);
+    DrawText("C - Change current crop", (GetScreenWidth() / 2) - 90, (GetScreenHeight() / 2 - 180) + 5, 30, RAYWHITE);
+    DrawText("E - Refill watering can", (GetScreenWidth() / 2) - 90, (GetScreenHeight() / 2 - 150) + 5, 30, RAYWHITE);
+    DrawText("Controls", (GetScreenWidth() / 2) - 90, (GetScreenHeight() / 2 - 120) + 5, 30, RAYWHITE);
+}

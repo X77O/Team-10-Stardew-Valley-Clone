@@ -26,7 +26,11 @@ public:
     Texture2D back_texture;
     Sound walking_sound;
     Texture2D current_house;
-    bool shopping = false;
+    bool shopping = false;          // Enums for different states were a struggle hence the booleans.
+    bool buying = false;
+    bool selling = false;
+    bool upgrading = false;
+    int money = 60;
 
     //inventory
     int apples = 0;
@@ -110,34 +114,6 @@ class Chicken : Entity
 
 //********CROPS***********
 
-class CornCrop : Entity
-{
-    enum class Growth_Stage
-    {
-        EMPTY,
-        STAGE_1,
-        STAGE_2,
-        STAGE_3,
-        READY
-    };
-
-    bool is_harvestable = false;
-};
-
-class WheatCrop : Entity
-{
-    enum class Growth_Stage
-    {
-        EMPTY,
-        STAGE_1,
-        STAGE_2,
-        STAGE_3,
-        READY
-    };
-
-    bool is_harvestable = false;
-};
-
 class Apple : Entity
 {
 public:
@@ -165,10 +141,10 @@ public:
     Vector2 size = { 76, 76 };
     Color tile_color = BROWN;
     int stage = 0;                              // (0) not planted 
-                                                // (1) planted
-                                                // (2) small 
-                                                // (3) almost there 
-                                                // (4) ready corn;
+    // (1) planted
+    // (2) small 
+    // (3) almost there 
+    // (4) ready corn;
 
     bool watered = false;
     Texture2D texture;
@@ -245,4 +221,10 @@ void Applegrowth();
 void HarvestApples();
 void InitialiseFarming();
 void RenderFarmTiles();
+
+void InShop();
+void BuyingMenu();
+void ShopUserInput();
+int AskForUserInput();
+void InitialisePrices();
 
