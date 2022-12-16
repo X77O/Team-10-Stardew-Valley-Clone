@@ -2,7 +2,7 @@
 #include "raylib.h"
 #include <string>
 
-class Entity
+class Entity //parent class
 {
 public:
     Vector2 size;
@@ -25,22 +25,40 @@ public:
     Texture2D walk_right_texture;
     Texture2D back_texture;
     Sound walking_sound;
-    Texture2D current_house;
+    Sound claim;
     bool shopping = false;
+    bool buying = false;
+    bool selling = false;
+    bool upgrading = false;
+    int apple_growth_rate = 1800;
 
-    //inventory
+    //inventory (can edit starting values here)
     int apples = 0;
     int wool = 0;
     int milk = 0;
     int eggs = 0;
     int corn = 9;
-    int wheat = 16;
+    int wheat = 80;
+    int money = 0;
 
+};
+
+//**********HOUSE**************
+
+class House  //player's house element
+{
+public:
+    Texture2D current_house;
+    Texture2D next_house;
+    Texture2D next_next_house;
+    bool house1 = true;
+    bool house2 = false;
+    bool house3 = false;
 };
 
 //******ANIMALS*******
 
-class Animal : Entity     //TODO: MOVE TO SEPRETE FUNCTION
+class Animal : Entity
 {
 public:
     Texture texture;
@@ -61,18 +79,20 @@ public:
         name = type;
         if (type == "sheep")
         {
-            position.x = GetRandomValue(GetScreenWidth() * 0.5 + 10, GetScreenWidth() * 0.5 + 150);
-            position.y = GetRandomValue(GetScreenHeight() * 0.15 + 10, GetScreenHeight() * 0.15 + 200);
+            position.x = GetRandomValue(GetScreenWidth() * 0.5 + 10, GetScreenWidth() * 0.5 + 130);
+            position.y = GetRandomValue(GetScreenHeight() * 0.15 + 10, GetScreenHeight() * 0.15 + 160);
         }
+
         if (type == "cow")
         {
-            position.x = GetRandomValue(GetScreenWidth() * 0.48 + 10, GetScreenWidth() * 0.48 + 240);
-            position.y = GetRandomValue(GetScreenHeight() * 0.55 + 10, GetScreenHeight() * 0.55 + 100);
+            position.x = GetRandomValue(GetScreenWidth() * 0.6 + 10, GetScreenWidth() * 0.6 + 140);
+            position.y = GetRandomValue(GetScreenHeight() * 0.55 + 10, GetScreenHeight() * 0.55 + 140);
         }
+
         if (type == "chicken")
         {
-            position.x = GetRandomValue(GetScreenWidth() * 0.2 + 10, GetScreenWidth() * 0.2 + 130);
-            position.y = GetRandomValue(GetScreenHeight() * 0.4 + 10, GetScreenHeight() * 0.4 + 130);
+            position.x = GetRandomValue(GetScreenWidth() * 0.2 + 10, GetScreenWidth() * 0.2 + 150);
+            position.y = GetRandomValue(GetScreenHeight() * 0.4 + 10, GetScreenHeight() * 0.4 + 160);
         }
 
     }
@@ -128,6 +148,12 @@ public:
 
 //*********FARMTILE************
 
+class Arrow
+{
+public:
+    Texture2D texture;
+};
+
 class Farmtile : Entity
 {
 public:
@@ -135,10 +161,10 @@ public:
     Vector2 size = { 76, 76 };
     Color tile_color = BROWN;
     int stage = 0;                              // (0) not planted 
-    // (1) planted
-    // (2) small 
-    // (3) almost there 
-    // (4) ready corn;
+                                                // (1) planted
+                                                // (2) small 
+                                                // (3) almost there 
+                                                // (4) ready corn;
 
     bool watered = false;
     Texture2D texture;
@@ -203,7 +229,6 @@ void InitialiseTools();
 void UpdateShovel();
 void UpdateWateringCan();
 
-void InitialiseLevel();
 
 void OurNotificationWindow();
 
@@ -215,3 +240,11 @@ void Applegrowth();
 void HarvestApples();
 void InitialiseFarming();
 void RenderFarmTiles();
+void DeinitialiseAnimalsAndFarm();
+
+void InShop();
+void BuyingMenu();
+void ShopUserInput();
+int AskForUserInput();
+void InitialisePrices();
+

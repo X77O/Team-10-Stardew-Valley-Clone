@@ -2,6 +2,8 @@
 #include <vector>
 #include <iostream>
 #include <string>
+#include "../Headers/level.h"
+#include "../Headers/entities.h"
 
 
 //*************TIMER***********
@@ -30,9 +32,9 @@ void Timer()                                                  //Timer
     std::string minutes = std::to_string(min);
 
 
-    DrawText(seconds.c_str(), 125, 700, 20, WHITE);
-    DrawText(minutes.c_str(), 75, 700, 20, WHITE);
-    DrawText("Time:     m     s", 10, 700, 20, YELLOW);
+    DrawText(seconds.c_str(), 125, 700, 20, BLUE);
+    DrawText(minutes.c_str(), 75, 700, 20, BLUE);
+    DrawText("Time:     m     s", 10, 700, 20, BLACK);
 
 }
 
@@ -93,7 +95,8 @@ void RenderTrees()
 
 //********LEVEL*************
 
-void RenderLevel() {
+void RenderLevel() 
+{
 
     const int screenWidth = 1280;
     const int screenHeight = 720;
@@ -115,9 +118,27 @@ void RenderLevel() {
 
     DrawRectangleGradientH(screenWidth * 0.75f, screenHeight * 0.05f, 240, 400, ORANGE, BEIGE);             // Farmland
 
-    DrawRectangle(screenWidth * 0.5, screenHeight * 0.15, 200, 230, BEIGE);
+    DrawRectangle(screenWidth * 0.5, screenHeight * 0.15, 200, 230, BEIGE);                                 //Animal fence rectangles
     DrawRectangle(screenWidth * 0.48, screenHeight * 0.55, 330, 180, BEIGE);
     DrawRectangle(screenWidth * 0.2, screenHeight * 0.4, 180, 195, BEIGE);
 
-    DrawRectangle(450, 400, 120, 120, RAYWHITE);
+    DrawRectangle(0, screenHeight * 0.91, screenWidth, 70, Color{ 255, 255, 255, 180 });                    //semi-transparent inventory bar
+}
+
+void RenderHowToPlay() 
+{
+
+    DrawRectangle((GetScreenWidth() / 2) - 300, (GetScreenHeight() / 2 - 300), 600, 600, Color{ 40,40,40,175 });
+    DrawText("W - Move up", (GetScreenWidth() / 2) - 270, (GetScreenHeight() / 2 - 300) + 5, 30, RAYWHITE);
+    DrawText("S - Move down", (GetScreenWidth() / 2) - 270, (GetScreenHeight() / 2 - 270) + 5, 30, RAYWHITE);
+    DrawText("A - Move left", (GetScreenWidth() / 2) - 270, (GetScreenHeight() / 2 - 240) + 5, 30, RAYWHITE);
+    DrawText("D - Move right", (GetScreenWidth() / 2) - 270, (GetScreenHeight() / 2 - 210) + 5, 30, RAYWHITE);
+    DrawText("C - Change current crop", (GetScreenWidth() / 2) - 270, (GetScreenHeight() / 2 - 180) + 5, 30, RAYWHITE);
+    DrawText("E - Refill or use  watering can", (GetScreenWidth() / 2) - 270, (GetScreenHeight() / 2 - 150) + 5, 30, RAYWHITE);
+    DrawText("SPACE - Plant and harvest", (GetScreenWidth() / 2) - 270, (GetScreenHeight() / 2 - 120) + 5, 30, RAYWHITE);
+    DrawText("SPACE - Interact with animals", (GetScreenWidth() / 2) - 270, (GetScreenHeight() / 2 - 90) + 5, 30, RAYWHITE);
+    DrawText("SPACE - Collect apples", (GetScreenWidth() / 2) - 270, (GetScreenHeight() / 2 - 60) + 5, 30, RAYWHITE);
+    DrawText("SPACE & Yellow places - Buy animals", (GetScreenWidth() / 2) - 270, (GetScreenHeight() / 2 - 30) + 5, 30, RAYWHITE);
+    DrawText("SPACE - Open shop", (GetScreenWidth() / 2) - 270, (GetScreenHeight() / 2 - 0) + 5, 30, RAYWHITE);
+    DrawText("Controls", (GetScreenWidth() / 2) - 270, (GetScreenHeight() / 2 + 30) + 5, 30, RAYWHITE);
 }
